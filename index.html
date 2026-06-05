@@ -1330,6 +1330,13 @@
             font-size: 13px;
             color: var(--gray-500);
         }
+        .pub-page-size {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+            padding-bottom: 4px;
+        }
         
         /* 政策法规页面 - 左右布局 */
         .policy-layout {
@@ -2568,6 +2575,35 @@
             cursor: pointer;
         }
         .pub-search-btn:hover { background: var(--primary-dark); }
+        .simple-list-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .pub-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .pub-table thead th {
+            background: #f9fafb;
+            border-bottom: 2px solid var(--primary);
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            text-align: left;
+        }
+        .pub-table tbody td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #555;
+        }
+        .pub-table tbody tr:hover { background: #fef2f4; }
         
         /* 信用承诺分类子标签 */
         .chengnuo-subtabs {
@@ -4976,7 +5012,7 @@
             <div class="notice-bar">
                 <span class="notice-label">通知</span>
                 <span class="notice-content">关于开展2026年度企业信用评价工作的通知 —— 申报截止时间：2026年6月30日</span>
-                <a href="#" class="notice-more">更多 &rsaquo;</a>
+                <a href="#" class="notice-more" onclick="navigateTo('notice-list')">更多 &rsaquo;</a>
             </div>
             
             <!-- 红黑名单 -->
@@ -5456,7 +5492,7 @@
                             <div class="dynamic-tab" data-dtab="hubei">湖北省</div>
                             <div class="dynamic-tab" data-dtab="national">国家</div>
                             <div class="dynamic-tab" data-dtab="focus">诚信宣传</div>
-                            <div class="dynamic-tab" data-dtab="risk">风险提示</div>
+                            <div class="dynamic-tab" data-dtab="risk" onclick="navigateTo('risk-list');event.stopPropagation()">风险提示</div>
                         </div>
                         <div class="dynamic-list" id="dynamicList-wuhan">
                             <div class="dynamic-item">
@@ -5663,7 +5699,7 @@
                 <div class="policy-sidebar">
                     <div class="sidebar-card">
                         <div class="sidebar-card-header">
-                            <span class="icon-dot"></span> 政策解读
+                            <span class="icon-dot"></span> <a href="#" onclick="navigateTo('policy-interpret-list');return false" style="color:inherit;text-decoration:none;">政策解读</a>
                         </div>
                         <div class="sidebar-card-body">
                             <div class="policy-interpret-item">
@@ -5793,6 +5829,7 @@
                             <span class="page-btn">15</span>
                             <span class="page-btn">&raquo;</span>
                         </div>
+                        <div class="pub-page-size">默认展示50条数</div>
                     </div>
                     
                     <!-- 信用承诺公示 -->
@@ -5867,6 +5904,7 @@
                             <span class="page-btn">10</span>
                             <span class="page-btn">&raquo;</span>
                         </div>
+                        <div class="pub-page-size">默认展示50条数</div>
                     </div>
                     
                     <!-- 诚信名单 -->
@@ -5918,6 +5956,7 @@
                             <span class="page-btn">8</span>
                             <span class="page-btn">&raquo;</span>
                         </div>
+                        <div class="pub-page-size">默认展示50条数</div>
                     </div>
                     
                     <!-- 严重失信名单 -->
@@ -5969,6 +6008,7 @@
                             <span class="page-btn">6</span>
                             <span class="page-btn">&raquo;</span>
                         </div>
+                        <div class="pub-page-size">默认展示50条数</div>
                     </div>
                     
                     <!-- 统一社会信用代码 -->
@@ -6027,6 +6067,7 @@
                             <span class="page-btn">12</span>
                             <span class="page-btn">&raquo;</span>
                         </div>
+                        <div class="pub-page-size">默认展示50条数</div>
                     </div>
                     
                     <!-- 双随机抽查结果 -->
@@ -6078,6 +6119,7 @@
                             <span class="page-btn">9</span>
                             <span class="page-btn">&raquo;</span>
                         </div>
+                        <div class="pub-page-size">默认展示50条数</div>
                     </div>
                 </div>
                 
@@ -7132,6 +7174,190 @@
             </div>
         </div>
     </div>
+
+    <!-- ==================== 通知列表页面 ==================== -->
+    <div id="page-notice-list" class="page-section">
+        <div class="page-hero">
+            <div class="hero-inner">
+                <div class="breadcrumb">
+                    <a href="#" data-page="home">首页</a>
+                    <span class="separator">&rsaquo;</span>
+                    <span class="current">通知公告</span>
+                </div>
+                <div class="page-hero-title">
+                    <h2>通知公告</h2>
+                    <span class="subtitle">武汉市信用体系建设相关通知和公告</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="simple-list-container">
+                <div class="pub-search-bar">
+                    <input type="text" class="pub-search-input" placeholder="请输入通知标题搜索">
+                    <button class="pub-search-btn">🔍 搜索</button>
+                </div>
+                <table class="pub-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">序号</th>
+                            <th>通知标题</th>
+                            <th style="width:130px;">发布时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>关于开展2026年度企业信用评价工作的通知</td><td>2026-06-01</td></tr>
+                        <tr><td>2</td><td>关于做好信用信息归集共享工作的通知</td><td>2026-05-28</td></tr>
+                        <tr><td>3</td><td>武汉市信用修复工作规程（试行）</td><td>2026-05-25</td></tr>
+                        <tr><td>4</td><td>关于公布2025年度守信联合激励名单的通知</td><td>2026-05-20</td></tr>
+                        <tr><td>5</td><td>关于开展信用承诺标准化工作的通知</td><td>2026-05-18</td></tr>
+                        <tr><td>6</td><td>关于进一步规范严重失信主体名单管理的通知</td><td>2026-05-15</td></tr>
+                        <tr><td>7</td><td>武汉市信用体系建设"十四五"规划中期评估报告</td><td>2026-05-12</td></tr>
+                        <tr><td>8</td><td>关于推广专用信用报告替代无违规证明的通知</td><td>2026-05-10</td></tr>
+                        <tr><td>9</td><td>关于开展2026年信用示范企业评选的通知</td><td>2026-05-08</td></tr>
+                        <tr><td>10</td><td>武汉市区级信用平台建设工作推进会通知</td><td>2026-05-05</td></tr>
+                        <tr><td>11</td><td>关于做好信用信息安全管理工作的通知</td><td>2026-04-28</td></tr>
+                        <tr><td>12</td><td>武汉市信用数据标准规范V2.0发布通知</td><td>2026-04-25</td></tr>
+                        <tr><td>13</td><td>关于信用平台系统升级维护的通知</td><td>2026-04-22</td></tr>
+                        <tr><td>14</td><td>关于开展跨区域信用合作试点的通知</td><td>2026-04-18</td></tr>
+                        <tr><td>15</td><td>武汉市信用信息应用场景拓展工作方案</td><td>2026-04-15</td></tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span class="page-btn disabled">&laquo;</span>
+                    <span class="page-btn active">1</span>
+                    <span class="page-btn">2</span>
+                    <span class="page-btn">3</span>
+                    <span class="page-ellipsis">...</span>
+                    <span class="page-btn">15</span>
+                    <span class="page-btn">&raquo;</span>
+                </div>
+                <div class="pub-page-size">默认展示50条数</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 风险提示列表页面 ==================== -->
+    <div id="page-risk-list" class="page-section">
+        <div class="page-hero">
+            <div class="hero-inner">
+                <div class="breadcrumb">
+                    <a href="#" data-page="home">首页</a>
+                    <span class="separator">&rsaquo;</span>
+                    <a href="#" data-page="dynamic">信用动态</a>
+                    <span class="separator">&rsaquo;</span>
+                    <span class="current">风险提示</span>
+                </div>
+                <div class="page-hero-title">
+                    <h2>风险提示</h2>
+                    <span class="subtitle">信用风险预警信息，帮助企业规避经营风险</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="simple-list-container">
+                <div class="pub-search-bar">
+                    <input type="text" class="pub-search-input" placeholder="请输入风险标题搜索">
+                    <button class="pub-search-btn">🔍 搜索</button>
+                </div>
+                <table class="pub-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">序号</th>
+                            <th>风险标题</th>
+                            <th style="width:200px;">内容概述</th>
+                            <th style="width:120px;">信息来源</th>
+                            <th style="width:130px;">发布时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>警惕"征信修复"新型诈骗</td><td>近期出现多起以"征信修复""信用洗白"为名的诈骗案件，需高度警惕</td><td>国家发改委</td><td>2026-06-03</td></tr>
+                        <tr><td>2</td><td>部分企业信用评级下调预警</td><td>受行业景气度影响，部分制造企业信用评级面临下调风险</td><td>信用中国</td><td>2026-06-01</td></tr>
+                        <tr><td>3</td><td>房地产行业信用风险提示</td><td>部分房地产企业资金链紧张，存在违约风险，建议关注</td><td>国家金融监管总局</td><td>2026-05-28</td></tr>
+                        <tr><td>4</td><td>政府采购领域失信行为通报</td><td>近期查处多起政府采购中弄虚作假、围标串标等失信行为</td><td>财政部</td><td>2026-05-25</td></tr>
+                        <tr><td>5</td><td>企业环保信用评价预警</td><td>多家企业因环境违法被纳入环保信用"黑名单"</td><td>生态环境部</td><td>2026-05-22</td></tr>
+                        <tr><td>6</td><td>金融领域非法集资风险提示</td><td>多地出现以"区块链""数字货币"为幌子的非法集资活动</td><td>国家金融监管总局</td><td>2026-05-20</td></tr>
+                        <tr><td>7</td><td>食品行业安全信用警示</td><td>部分食品企业因食品安全问题被列入重点监管名单</td><td>市场监管总局</td><td>2026-05-18</td></tr>
+                        <tr><td>8</td><td>纳税信用修复政策风险提示</td><td>纳税信用修复申请中常见的材料造假风险提醒</td><td>税务总局</td><td>2026-05-15</td></tr>
+                        <tr><td>9</td><td>PPP项目信用风险预警</td><td>部分PPP项目因政府财政压力面临违约风险</td><td>国家发改委</td><td>2026-05-12</td></tr>
+                        <tr><td>10</td><td>跨境贸易信用风险提示</td><td>国际形势变化导致部分外贸企业信用风险上升</td><td>商务部</td><td>2026-05-10</td></tr>
+                        <tr><td>11</td><td>物流行业失信联合惩戒通告</td><td>多家物流企业因严重失信被列入联合惩戒名单</td><td>交通运输部</td><td>2026-05-08</td></tr>
+                        <tr><td>12</td><td>建筑施工领域信用风险</td><td>建筑工程领域安全事故频发，相关企业信用评级受影响</td><td>住建部</td><td>2026-05-05</td></tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span class="page-btn disabled">&laquo;</span>
+                    <span class="page-btn active">1</span>
+                    <span class="page-btn">2</span>
+                    <span class="page-btn">3</span>
+                    <span class="page-ellipsis">...</span>
+                    <span class="page-btn">12</span>
+                    <span class="page-btn">&raquo;</span>
+                </div>
+                <div class="pub-page-size">默认展示50条数</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 政策解读列表页面 ==================== -->
+    <div id="page-policy-interpret-list" class="page-section">
+        <div class="page-hero">
+            <div class="hero-inner">
+                <div class="breadcrumb">
+                    <a href="#" data-page="home">首页</a>
+                    <span class="separator">&rsaquo;</span>
+                    <a href="#" data-page="policy">政策法规</a>
+                    <span class="separator">&rsaquo;</span>
+                    <span class="current">政策解读</span>
+                </div>
+                <div class="page-hero-title">
+                    <h2>政策解读</h2>
+                    <span class="subtitle">国家和地方信用政策法规的权威解读</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="simple-list-container">
+                <div class="pub-search-bar">
+                    <input type="text" class="pub-search-input" placeholder="请输入政策标题搜索">
+                    <button class="pub-search-btn">🔍 搜索</button>
+                </div>
+                <table class="pub-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">序号</th>
+                            <th>标题</th>
+                            <th style="width:120px;">信息来源</th>
+                            <th style="width:130px;">发布时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>失信约束制度指导意见详解</td><td>国务院</td><td>2026-05-15</td></tr>
+                        <tr><td>2</td><td>企业信用评价管理办法问答</td><td>国家发改委</td><td>2026-05-12</td></tr>
+                        <tr><td>3</td><td>信用修复工作规程操作指南</td><td>国家发改委</td><td>2026-05-08</td></tr>
+                        <tr><td>4</td><td>《武汉市专用信用报告管理办法》政策解读</td><td>武汉市发改委</td><td>2026-05-05</td></tr>
+                        <tr><td>5</td><td>社会信用体系建设法草案要点解读</td><td>信用中国</td><td>2026-05-01</td></tr>
+                        <tr><td>6</td><td>公共信用信息目录（2026年版）编制说明</td><td>国家发改委</td><td>2026-04-28</td></tr>
+                        <tr><td>7</td><td>关于推进社会信用体系建设高质量发展的意见解读</td><td>国务院办公厅</td><td>2026-04-25</td></tr>
+                        <tr><td>8</td><td>联合惩戒备忘录实施细则政策问答</td><td>国家发改委</td><td>2026-04-20</td></tr>
+                        <tr><td>9</td><td>湖北省信用信息管理条例新旧对比</td><td>湖北省发改委</td><td>2026-04-15</td></tr>
+                        <tr><td>10</td><td>纳税信用评价管理办法修订要点</td><td>税务总局</td><td>2026-04-10</td></tr>
+                        <tr><td>11</td><td>企业环境信用评价办法政策解读</td><td>生态环境部</td><td>2026-04-08</td></tr>
+                        <tr><td>12</td><td>失信被执行人名单制度操作指引</td><td>最高人民法院</td><td>2026-04-05</td></tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span class="page-btn disabled">&laquo;</span>
+                    <span class="page-btn active">1</span>
+                    <span class="page-btn">2</span>
+                    <span class="page-btn">3</span>
+                    <span class="page-ellipsis">...</span>
+                    <span class="page-btn">12</span>
+                    <span class="page-btn">&raquo;</span>
+                </div>
+                <div class="pub-page-size">默认展示50条数</div>
+            </div>
+        </div>
+    </div>
     
     <!-- 底部 -->
     <footer class="footer">
@@ -7820,12 +8046,12 @@
         
         // 各角色可访问的功能模块
         const ROLE_PERMISSIONS = {
-            R01: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter'],
-            R02: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter'],
-            R03: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter'],
-            R05: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter'],
-            R07: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter'],
-            R08: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter']
+            R01: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
+            R02: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
+            R03: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
+            R05: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
+            R07: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
+            R08: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list']
         };
         
         let currentRole = 'R01';
