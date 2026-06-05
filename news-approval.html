@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新闻稿编辑与审批系统</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #1e3a5f;
+    --primary-light: #2d5a87;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+    color: var(--gray-700);
+    background: #f0f2f5;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ====== 左侧导航 ====== */
+.sidebar {
+    width: 220px;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.sidebar-brand {
+    padding: 20px 16px;
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-brand .icon { font-size: 24px; }
+
+.sidebar-nav { flex: 1; padding: 12px 0; }
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    transition: background-color 0.2s, color 0.2s;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border-left-color: #fff;
+}
+
+.sidebar-nav a .badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* ====== 主内容 ====== */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 顶部栏 */
+.topbar {
+    background: #fff;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+
+.role-switch {
+    display: flex;
+    background: var(--gray-100);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.role-btn {
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--gray-600);
+    transition: background-color 0.2s, color 0.2s;
+}
+.role-btn.active { background: var(--primary); color: #fff; }
+
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+
+.notification-btn {
+    position: relative;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--gray-600);
+    padding: 4px;
+}
+
+.notification-btn .dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: var(--danger);
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* 通知下拉 */
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    top: 48px;
+    right: 24px;
+    width: 360px;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-dropdown.open { display: block; }
+
+.notification-dropdown .header {
+    padding: 14px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-dropdown .header .mark-read {
+    font-size: 12px;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.notification-item:hover { background: var(--gray-50); }
+.notification-item.unread { border-left: 3px solid var(--primary); background: #fafbff; }
+.notification-item .time { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+/* 内容区 */
+.content {
+    flex: 1;
+    overflow: auto;
+    padding: 24px;
+}
+
+/* 页面面板 */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* 状态 Tab */
+.status-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    background: #fff;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.status-tab {
+    padding: 12px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--gray-600);
+    border: none;
+    background: transparent;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.status-tab:hover { color: var(--primary); }
+.status-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+}
+
+.status-tab .count {
+    display: inline-block;
+    background: var(--gray-200);
+    color: var(--gray-600);
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-left: 6px;
+}
+.status-tab.active .count { background: var(--primary); color: #fff; }
+
+/* 卡片面板 */
+.card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title { font-size: 15px; font-weight: 600; }
+.card-body { padding: 20px; }
+
+/* 表格 */
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+th { background: var(--gray-50); font-weight: 600; color: var(--gray-700); white-space: nowrap; }
+tr:hover { background: var(--gray-50); }
+td .title-link { color: var(--primary); cursor: pointer; font-weight: 500; }
+td .title-link:hover { text-decoration: underline; }
+
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* 状态标签 */
+.status-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-draft       { background: #e5e7eb; color: #6b7280; }
+.status-pending     { background: #fef3c7; color: #b45309; }
+.status-approved    { background: #dcfce7; color: #16a34a; }
+.status-rejected    { background: #fee2e2; color: #dc2626; }
+
+/* 按钮 */
+.btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-light); }
+
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #15803d; }
+
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+
+.btn-outline {
+    background: #fff;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+}
+.btn-outline:hover { background: var(--gray-50); border-color: var(--gray-400); }
+
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-link { background: none; color: var(--primary); padding: 0; border: none; font-size: 13px; }
+.btn-link:hover { text-decoration: underline; }
+
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+/* 表单 */
+.form-section { max-width: 900px; }
+
+.form-group { margin-bottom: 18px; }
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--gray-700);
+}
+
+.form-label .required { color: var(--danger); }
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+}
+
+.form-textarea { min-height: 280px; resize: vertical; line-height: 1.8; }
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gray-200);
+    margin-top: 8px;
+}
+
+/* 驳回横幅 */
+.rejection-banner {
+    background: var(--danger-light);
+    border: 1px solid #fecaca;
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.rejection-banner .icon { font-size: 20px; flex-shrink: 0; }
+.rejection-banner .body { flex: 1; }
+.rejection-banner .title { font-weight: 600; color: var(--danger); margin-bottom: 4px; }
+.rejection-banner .meta { color: var(--gray-500); font-size: 12px; margin-top: 4px; }
+
+/* 弹框 */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 800px;
+    max-width: 95%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal.wide { width: 1000px; }
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.modal-header h3 { font-size: 16px; }
+
+.modal-close {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--gray-500);
+    border: none;
+    background: none;
+}
+
+.modal-close:hover { background: var(--gray-100); }
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* 审批预览 */
+.preview-article { line-height: 1.8; }
+
+.preview-article h2 {
+    font-size: 22px;
+    color: var(--gray-900);
+    margin-bottom: 12px;
+}
+
+.preview-article .meta {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.preview-article .body {
+    font-size: 15px;
+    color: var(--gray-800);
+    white-space: pre-wrap;
+}
+
+.rejection-form {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gray-200);
+}
+
+.rejection-form .form-label { font-size: 14px; color: var(--danger); }
+
+.char-count {
+    text-align: right;
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: 4px;
+}
+
+.char-count.warn { color: var(--danger); }
+
+/* 空状态 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-500);
+}
+
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+/* 操作日志 */
+.audit-log {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-top: 24px;
+}
+
+.audit-log .header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.audit-log-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+}
+
+.audit-log-item .time { color: var(--gray-500); font-size: 12px; width: 130px; }
+.audit-log-item .user { font-weight: 600; min-width: 80px; }
+.audit-log-item .action { color: var(--gray-600); }
+
+/* Toast */
+.toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 3000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.toast.show { opacity: 1; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.info { background: var(--primary-light); }
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sidebar-brand span { display: none; }
+    .sidebar-nav a { padding: 14px; justify-content: center; }
+    .sidebar-nav a span:not(.badge) { display: none; }
+    .sidebar-nav a .badge { display: none; }
+
+    .form-row { grid-template-columns: 1fr; }
+    .modal { width: 100%; max-height: 100vh; border-radius: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== 左侧导航 ====== -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <span class="icon">&#128240;</span>
+        <span>新闻管理系统</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+</aside>
+
+<!-- ====== 主内容 ====== -->
+<div class="main">
+    <!-- 顶部栏 -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2 style="font-size:18px;font-weight:600;color:var(--gray-900);" id="pageTitle">我的稿件</h2>
+            <div class="role-switch">
+                <button class="role-btn active" data-role="editor">编辑者</button>
+                <button class="role-btn" data-role="approver">审批者</button>
+            </div>
+        </div>
+        <div class="topbar-right" style="position:relative;">
+            <button class="notification-btn" id="notificationBtn" aria-label="通知">
+                &#128276;
+                <span class="dot" id="notificationDot" style="display:none;"></span>
+            </button>
+            <span style="font-size:13px;color:var(--gray-600);" id="currentUser">张编辑</span>
+            <div class="user-avatar" id="userAvatar">张</div>
+        </div>
+        <!-- 通知下拉 -->
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="header">
+                消息通知
+                <span class="mark-read" onclick="markAllRead()">全部已读</span>
+            </div>
+            <div id="notificationList"></div>
+        </div>
+    </header>
+
+    <!-- 内容区 -->
+    <div class="content">
+
+        <!-- ====== 编辑者：我的稿件列表 ====== -->
+        <div class="panel active" id="panel-editor-list">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">&#128196; 新闻稿件列表</span>
+                    <button class="btn btn-primary" onclick="navigateTo('editor-form')">+ 新建稿件</button>
+                </div>
+                <div class="status-tabs" id="statusTabs">
+                    <button class="status-tab active" data-status="all">全部 <span class="count">0</span></button>
+                    <button class="status-tab" data-status="draft">草稿 <span class="count">0</span></button>
+                    <button class="status-tab" data-status="pending">待审批 <span class="count">0</span></button>
+                    <button class="status-tab" data-status="approved">已通过 <span class="count">0</span></button>
+                    <button class="status-tab" data-status="rejected">已驳回 <span class="count">0</span></button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>标题</th>
+                                <th>分类</th>
+                                <th>更新时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editorArticleTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="editorEmpty" style="display:none;">
+                    <div class="icon">&#128203;</div>
+                    <div>暂无稿件</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 编辑者：新建/编辑稿件 ====== -->
+        <div class="panel" id="panel-editor-form">
+            <div id="rejectionBanner"></div>
+            <div class="card form-section">
+                <div class="card-header">
+                    <span class="card-title" id="formTitle">&#9997; 新建新闻稿</span>
+                    <button class="btn btn-outline btn-sm" onclick="navigateTo('editor-list')">&larr; 返回列表</button>
+                </div>
+                <div class="card-body">
+                    <input type="hidden" id="editArticleId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"><span class="required">*</span> 标题</label>
+                            <input type="text" class="form-input" id="fTitle" placeholder="请输入新闻标题">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="required">*</span> 分类</label>
+                            <select class="form-select" id="fCategory">
+                                <option value="">请选择分类</option>
+                                <option value="武汉">武汉</option>
+                                <option value="湖北">湖北</option>
+                                <option value="国家">国家</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">来源</label>
+                        <input type="text" class="form-input" id="fSource" placeholder="例如：武汉市发改委">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">摘要</label>
+                        <textarea class="form-textarea" id="fSummary" style="min-height:60px;" placeholder="请输入新闻摘要（选填）"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> 正文</label>
+                        <textarea class="form-textarea" id="fContent" placeholder="请输入新闻正文内容"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="saveDraft()">&#128190; 保存草稿</button>
+                        <button class="btn btn-primary" onclick="submitForApproval()">&#128232; 提交审批</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 审批者：待审批列表 ====== -->
+        <div class="panel" id="panel-approver-pending">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">&#128220; 待审批稿件</span>
+                    <span style="font-size:13px;color:var(--gray-500);" id="pendingCountLabel"></span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>标题</th>
+                                <th>分类</th>
+                                <th>提交人</th>
+                                <th>提交时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="approverPendingTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="approverPendingEmpty" style="display:none;">
+                    <div class="icon">&#9989;</div>
+                    <div>暂无待审批稿件</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 审批者：审批历史 ====== -->
+        <div class="panel" id="panel-approver-history">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">&#128214; 审批历史</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>标题</th>
+                                <th>提交人</th>
+                                <th>审批结果</th>
+                                <th>审批意见</th>
+                                <th>审批时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="approverHistoryTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="approverHistoryEmpty" style="display:none;">
+                    <div class="icon">&#128196;</div>
+                    <div>暂无审批记录</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 操作日志 ====== -->
+        <div class="audit-log" id="auditLog">
+            <div class="header">&#128337; 操作日志</div>
+            <div id="auditLogList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== 审批详情弹框 ====== -->
+<div class="modal-overlay" id="approvalModal">
+    <div class="modal wide">
+        <div class="modal-header">
+            <h3>&#128269; 审批稿件</h3>
+            <button class="modal-close" onclick="closeApprovalModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="approvalModalBody"></div>
+        <div class="modal-footer" id="approvalModalFooter"></div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== 数据模型 ======
+const articles = [
+    { id: 1, title: '武汉市社会信用体系建设推进会召开', category: '武汉', summary: '会议总结了2025年信用工作成效', content: '5月21日，武汉市社会信用体系建设推进会在武汉会议中心召开。会议深入贯彻国家关于社会信用体系建设的决策部署，总结了2025年全市信用工作成效，部署了2026年重点工作任务。\n\n会议强调，要加快推进信用信息归集共享，深化信用监管机制创新，拓展信用应用场景，让守信者处处受益、失信者寸步难行。\n\n市发改委、市市场监管局、市税务局等30余家单位负责同志参加会议。', source: '武汉市发改委', status: 'approved', author: '张编辑', createdAt: '2026-05-21 10:30', updatedAt: '2026-05-21 14:00' },
+    { id: 2, title: '武汉入选全国信用示范城市名单', category: '武汉', summary: '', content: '近日，国家发改委公布第四批全国社会信用体系建设示范城市名单，武汉市成功入选。\n\n这标志着武汉市在社会信用体系建设方面取得了显著成效，得到了国家层面的认可。\n\n近年来，武汉市大力推进信用信息平台建设，归集信用信息超过8000万条，覆盖全市15万家企业主体。', source: '信用中国', status: 'pending', author: '张编辑', createdAt: '2026-05-18 15:20', updatedAt: '2026-05-18 15:20' },
+    { id: 3, title: '江汉区率先完成信用监管全覆盖', category: '武汉', summary: '', content: '江汉区近日宣布，已率先在全区范围内完成信用分级分类监管全覆盖。\n\n该区将企业信用状况分为A、B、C、D四个等级，对信用良好的企业减少抽查频次，对失信企业加大监管力度。', source: '江汉区政府', status: 'draft', author: '张编辑', createdAt: '2026-05-15 09:45', updatedAt: '2026-05-15 09:45' },
+    { id: 4, title: '关于进一步完善失信约束制度的指导意见', category: '国家', summary: '国务院发布最新指导意见', content: '国务院办公厅近日印发《关于进一步完善失信约束制度的指导意见》，要求各地区、各部门依法依规实施失信惩戒。\n\n指导意见明确了失信约束的适用范围、程序要求和救济渠道，强调要防止失信惩戒泛化滥用。', source: '国务院', status: 'rejected', author: '张编辑', createdAt: '2026-05-12 11:00', updatedAt: '2026-05-13 09:30' },
+    { id: 5, title: '企业信用评价管理办法解读', category: '湖北', summary: '', content: '湖北省发改委发布了《企业信用评价管理办法（试行）》解读文章。\n\n该办法明确了企业信用评价的指标体系、评价方法和结果应用。', source: '湖北省发改委', status: 'approved', author: '李编辑', createdAt: '2026-05-10 14:00', updatedAt: '2026-05-10 16:30' },
+    { id: 6, title: '东湖高新区开展企业信用管理培训', category: '武汉', summary: '', content: '东湖高新区近日组织开展了企业信用管理专题培训，100余家企业代表参加。\n\n培训内容包括信用政策解读、信用修复流程、企业信用管理体系建设等。', source: '东湖高新区', status: 'draft', author: '张编辑', createdAt: '2026-05-08 16:00', updatedAt: '2026-05-08 16:00' },
+];
+
+const approvals = [
+    { id: 1, articleId: 1, reviewer: '王审批', result: 'approved', comment: '内容符合要求，同意发布。', reviewedAt: '2026-05-21 14:00' },
+    { id: 2, articleId: 4, reviewer: '王审批', result: 'rejected', comment: '引用政策文件编号有误，请核实后重新提交。此外建议增加湖北省层面的具体落实措施。', reviewedAt: '2026-05-13 09:30' },
+    { id: 3, articleId: 5, reviewer: '王审批', result: 'approved', comment: '解读清晰，同意发布。', reviewedAt: '2026-05-10 16:30' },
+];
+
+const notifications = [
+    { id: 1, text: '您提交的《武汉入选全国信用示范城市名单》正在等待审批', time: '2026-05-18 15:20', read: false },
+    { id: 2, text: '您的稿件《关于进一步完善失信约束制度的指导意见》已被驳回，请查看驳回意见', time: '2026-05-13 09:30', read: false },
+    { id: 3, text: '您的稿件《武汉市社会信用体系建设推进会召开》已审批通过', time: '2026-05-21 14:00', read: true },
+    { id: 4, text: '新稿件《武汉入选全国信用示范城市名单》等待您审批', time: '2026-05-18 15:20', read: true },
+];
+
+const auditLog = [
+    { time: '2026-05-21 14:00', user: '王审批', action: '审批通过了稿件《武汉市社会信用体系建设推进会召开》' },
+    { time: '2026-05-18 15:20', user: '张编辑', action: '提交了稿件《武汉入选全国信用示范城市名单》进入审批' },
+    { time: '2026-05-13 09:30', user: '王审批', action: '驳回了稿件《关于进一步完善失信约束制度的指导意见》' },
+    { time: '2026-05-12 11:00', user: '张编辑', action: '提交了稿件《关于进一步完善失信约束制度的指导意见》进入审批' },
+    { time: '2026-05-10 16:30', user: '王审批', action: '审批通过了稿件《企业信用评价管理办法解读》' },
+];
+
+// ====== 状态 ======
+let currentRole = 'editor';
+let currentPanel = 'editor-list';
+let currentStatusFilter = 'all';
+let editingArticleId = null;
+let approvingArticleId = null;
+
+// ====== 工具函数 ======
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+function statusLabel(s) {
+    const map = { draft: '草稿', pending: '待审批', approved: '已通过', rejected: '已驳回' };
+    return map[s] || s;
+}
+
+function statusClass(s) {
+    return 'status-' + s;
+}
+
+function formatTime(t) {
+    if (!t) return '';
+    return t.replace('2026-', '').replace('2025-', '');
+}
+
+function showToast(msg, type = 'info') {
+    const toast = $('#toast');
+    toast.textContent = msg;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(() => { toast.classList.remove('show'); }, 2500);
+}
+
+function nextId(arr) {
+    return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1;
+}
+
+// ====== 导航 ======
+function updateSidebar() {
+    const nav = $('#sidebarNav');
+    if (currentRole === 'editor') {
+        $('#currentUser').textContent = '张编辑';
+        $('#userAvatar').textContent = '张';
+        const pendingCount = articles.filter(a => a.author === '张编辑' && a.status === 'pending').length;
+        const rejectedCount = articles.filter(a => a.author === '张编辑' && a.status === 'rejected').length;
+        nav.innerHTML = `
+            <a class="active" data-panel="editor-list">&#128196; 我的稿件</a>
+            <a data-panel="editor-form">&#10133; 新建稿件</a>
+            <a data-panel="editor-list" data-status="pending">&#128336; 待审批 <span class="badge">${pendingCount}</span></a>
+            <a data-panel="editor-list" data-status="rejected">&#9888; 已驳回 <span class="badge">${rejectedCount}</span></a>
+        `;
+        $('#pageTitle').textContent = '我的稿件';
+    } else {
+        $('#currentUser').textContent = '王审批';
+        $('#userAvatar').textContent = '王';
+        const pendingTotal = articles.filter(a => a.status === 'pending').length;
+        nav.innerHTML = `
+            <a class="active" data-panel="approver-pending">&#128220; 待审批 <span class="badge">${pendingTotal}</span></a>
+            <a data-panel="approver-history">&#128214; 审批历史</a>
+        `;
+        $('#pageTitle').textContent = '待审批';
+    }
+
+    // 导航点击
+    $$('#sidebarNav a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const panel = this.dataset.panel;
+            const status = this.dataset.status;
+
+            $$('#sidebarNav a').forEach(a => a.classList.remove('active'));
+            this.classList.add('active');
+
+            if (panel === 'editor-list' && status) {
+                currentStatusFilter = status;
+                $$('#statusTabs .status-tab').forEach(t => t.classList.remove('active'));
+                const tab = $(`#statusTabs [data-status="${status}"]`);
+                if (tab) tab.classList.add('active');
+            } else if (panel === 'editor-list' && !status) {
+                currentStatusFilter = 'all';
+                $$('#statusTabs .status-tab').forEach(t => t.classList.remove('active'));
+                $$('#statusTabs .status-tab')[0]?.classList.add('active');
+            }
+
+            navigateTo(panel);
+        });
+    });
+}
+
+function navigateTo(panel) {
+    currentPanel = panel;
+    $$('.panel').forEach(p => p.classList.remove('active'));
+    const target = $('#panel-' + panel);
+    if (target) target.classList.add('active');
+
+    if (panel === 'editor-list') renderEditorList();
+    if (panel === 'editor-form') initEditorForm();
+    if (panel === 'approver-pending') renderApproverPending();
+    if (panel === 'approver-history') renderApproverHistory();
+    if (panel !== 'editor-form') { editingArticleId = null; }
+
+    renderAuditLog();
+}
+
+// ====== 编辑者列表 ======
+function renderEditorList() {
+    const tbody = $('#editorArticleTable');
+    const editorArticles = articles.filter(a => a.author === '张编辑');
+    const filtered = currentStatusFilter === 'all'
+        ? editorArticles
+        : editorArticles.filter(a => a.status === currentStatusFilter);
+
+    // 更新 tab 计数
+    const counts = {};
+    ['all', 'draft', 'pending', 'approved', 'rejected'].forEach(s => {
+        counts[s] = s === 'all' ? editorArticles.length : editorArticles.filter(a => a.status === s).length;
+    });
+    $$('#statusTabs .status-tab').forEach(tab => {
+        const s = tab.dataset.status;
+        const countEl = tab.querySelector('.count');
+        if (countEl) countEl.textContent = counts[s] || 0;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        $('#editorEmpty').style.display = 'block';
+        return;
+    }
+
+    $('#editorEmpty').style.display = 'none';
+    tbody.innerHTML = filtered.map(a => `
+        <tr>
+            <td><span class="title-link" onclick="editArticle(${a.id})">${a.title}</span></td>
+            <td>${a.category}</td>
+            <td>${formatTime(a.updatedAt)}</td>
+            <td><span class="status-tag ${statusClass(a.status)}">${statusLabel(a.status)}</span></td>
+            <td>
+                <button class="btn btn-link btn-sm" onclick="editArticle(${a.id})">${a.status === 'rejected' ? '修改' : '查看'}</button>
+                ${a.status === 'draft' ? `<button class="btn btn-link btn-sm" onclick="submitArticle(${a.id})" style="color:var(--warning);">提交</button>` : ''}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function editArticle(id) {
+    editingArticleId = id;
+    navigateTo('editor-form');
+}
+
+function submitArticle(id) {
+    const article = articles.find(a => a.id === id);
+    if (!article) return;
+    article.status = 'pending';
+    article.updatedAt = '2026-05-24 10:00';
+    addNotification('审批者', `新稿件《${article.title}》等待您审批`, '2026-05-24 10:00');
+    addAuditLog('张编辑', `提交了稿件《${article.title}》进入审批`);
+    showToast('已提交审批', 'success');
+    renderEditorList();
+    updateSidebar();
+    updateNotificationDot();
+}
+
+// ====== 编辑者表单 ======
+function initEditorForm() {
+    const article = editingArticleId ? articles.find(a => a.id === editingArticleId) : null;
+
+    if (article) {
+        $('#formTitle').innerHTML = '&#9997; 编辑新闻稿';
+        $('#editArticleId').value = article.id;
+        $('#fTitle').value = article.title;
+        $('#fCategory').value = article.category;
+        $('#fSource').value = article.source;
+        $('#fSummary').value = article.summary;
+        $('#fContent').value = article.content;
+
+        // 显示驳回横幅
+        if (article.status === 'rejected') {
+            const approval = approvals.find(a => a.articleId === article.id && a.result === 'rejected');
+            if (approval) {
+                $('#rejectionBanner').innerHTML = `
+                    <div class="rejection-banner">
+                        <span class="icon">&#9888;</span>
+                        <div class="body">
+                            <div class="title">此稿件已被驳回，请修改后重新提交</div>
+                            <div>驳回意见：${approval.comment}</div>
+                            <div class="meta">审批人：${approval.reviewer} | 审批时间：${approval.reviewedAt}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            $('#rejectionBanner').innerHTML = '';
+        }
+    } else {
+        $('#formTitle').innerHTML = '&#9997; 新建新闻稿';
+        $('#editArticleId').value = '';
+        $('#fTitle').value = '';
+        $('#fCategory').value = '';
+        $('#fSource').value = '';
+        $('#fSummary').value = '';
+        $('#fContent').value = '';
+        $('#rejectionBanner').innerHTML = '';
+    }
+}
+
+function saveDraft() {
+    const title = $('#fTitle').value.trim();
+    const category = $('#fCategory').value;
+
+    if (!title) { showToast('请输入标题', 'error'); return; }
+    if (!category) { showToast('请选择分类', 'error'); return; }
+
+    const id = $('#editArticleId').value;
+    const now = '2026-05-24 15:00';
+    const isNew = !id;
+
+    if (isNew) {
+        articles.unshift({
+            id: nextId(articles),
+            title,
+            category,
+            summary: $('#fSummary').value.trim(),
+            content: $('#fContent').value.trim(),
+            source: $('#fSource').value.trim(),
+            status: 'draft',
+            author: '张编辑',
+            createdAt: now,
+            updatedAt: now,
+        });
+        addAuditLog('张编辑', `创建了稿件《${title}》（草稿）`);
+    } else {
+        const article = articles.find(a => a.id === parseInt(id));
+        if (article) {
+            article.title = title;
+            article.category = category;
+            article.summary = $('#fSummary').value.trim();
+            article.content = $('#fContent').value.trim();
+            article.source = $('#fSource').value.trim();
+            article.updatedAt = now;
+            article.status = 'draft';
+            addAuditLog('张编辑', `更新了稿件《${title}》（草稿）`);
+        }
+    }
+
+    showToast('草稿已保存', 'success');
+    editingArticleId = null;
+    currentStatusFilter = 'draft';
+    $$('#statusTabs .status-tab').forEach(t => t.classList.remove('active'));
+    const draftTab = $('#statusTabs [data-status="draft"]');
+    if (draftTab) draftTab.classList.add('active');
+    navigateTo('editor-list');
+    updateSidebar();
+}
+
+function submitForApproval() {
+    const title = $('#fTitle').value.trim();
+    const category = $('#fCategory').value;
+    const content = $('#fContent').value.trim();
+
+    if (!title) { showToast('请输入标题', 'error'); return; }
+    if (!category) { showToast('请选择分类', 'error'); return; }
+    if (!content) { showToast('请输入正文', 'error'); return; }
+
+    const id = $('#editArticleId').value;
+    const now = '2026-05-24 15:30';
+    const isNew = !id;
+
+    if (isNew) {
+        articles.unshift({
+            id: nextId(articles),
+            title,
+            category,
+            summary: $('#fSummary').value.trim(),
+            content,
+            source: $('#fSource').value.trim(),
+            status: 'pending',
+            author: '张编辑',
+            createdAt: now,
+            updatedAt: now,
+        });
+        addNotification('审批者', `新稿件《${title}》等待您审批`, now);
+        addAuditLog('张编辑', `提交了稿件《${title}》进入审批`);
+    } else {
+        const article = articles.find(a => a.id === parseInt(id));
+        if (article) {
+            article.title = title;
+            article.category = category;
+            article.summary = $('#fSummary').value.trim();
+            article.content = content;
+            article.source = $('#fSource').value.trim();
+            article.status = 'pending';
+            article.updatedAt = now;
+            // 清除旧驳回审批记录
+            const idx = approvals.findIndex(a => a.articleId === article.id && a.result === 'rejected');
+            if (idx > -1) approvals.splice(idx, 1);
+            addNotification('审批者', `稿件《${title}》已重新提交，等待您审批`, now);
+            addAuditLog('张编辑', `重新提交了稿件《${title}》进入审批`);
+        }
+    }
+
+    showToast('已提交审批', 'success');
+    editingArticleId = null;
+    currentStatusFilter = 'pending';
+    $$('#statusTabs .status-tab').forEach(t => t.classList.remove('active'));
+    const pendingTab = $('#statusTabs [data-status="pending"]');
+    if (pendingTab) pendingTab.classList.add('active');
+    navigateTo('editor-list');
+    updateSidebar();
+    updateNotificationDot();
+}
+
+// ====== 审批者待审批 ======
+function renderApproverPending() {
+    const tbody = $('#approverPendingTable');
+    const pending = articles.filter(a => a.status === 'pending');
+    $('#pendingCountLabel').textContent = `共 ${pending.length} 篇待审批`;
+
+    if (pending.length === 0) {
+        tbody.innerHTML = '';
+        $('#approverPendingEmpty').style.display = 'block';
+    } else {
+        $('#approverPendingEmpty').style.display = 'none';
+        tbody.innerHTML = pending.map(a => `
+            <tr>
+                <td><span class="title-link" onclick="openApprovalModal(${a.id})">${a.title}</span></td>
+                <td>${a.category}</td>
+                <td>${a.author}</td>
+                <td>${formatTime(a.createdAt)}</td>
+                <td><button class="btn btn-primary btn-sm" onclick="openApprovalModal(${a.id})">审批</button></td>
+            </tr>
+        `).join('');
+    }
+}
+
+function renderApproverHistory() {
+    const tbody = $('#approverHistoryTable');
+    const history = [...approvals].sort((a, b) => b.id - a.id);
+
+    if (history.length === 0) {
+        tbody.innerHTML = '';
+        $('#approverHistoryEmpty').style.display = 'block';
+    } else {
+        $('#approverHistoryEmpty').style.display = 'none';
+        tbody.innerHTML = history.map(ap => {
+            const article = articles.find(a => a.id === ap.articleId);
+            return `
+                <tr>
+                    <td>${article ? article.title : '(已删除)'}</td>
+                    <td>${article ? article.author : '-'}</td>
+                    <td><span class="status-tag ${ap.result === 'approved' ? 'status-approved' : 'status-rejected'}">${ap.result === 'approved' ? '通过' : '驳回'}</span></td>
+                    <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${ap.comment}">${ap.comment}</td>
+                    <td>${formatTime(ap.reviewedAt)}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+}
+
+// ====== 审批弹框 ======
+function openApprovalModal(id) {
+    approvingArticleId = id;
+    const article = articles.find(a => a.id === id);
+    if (!article) return;
+
+    const existingApproval = approvals.find(a => a.articleId === id && a.result === 'rejected');
+
+    $('#approvalModalBody').innerHTML = `
+        <div class="preview-article">
+            <h2>${article.title}</h2>
+            <div class="meta">
+                分类：${article.category} &nbsp;|&nbsp;
+                来源：${article.source || '无'} &nbsp;|&nbsp;
+                提交人：${article.author} &nbsp;|&nbsp;
+                提交时间：${article.createdAt}
+                ${article.summary ? `<br>摘要：${article.summary}` : ''}
+            </div>
+            <div class="body">${article.content}</div>
+        </div>
+        ${existingApproval ? `
+            <div class="rejection-banner" style="margin-top:20px;">
+                <span class="icon">&#9888;</span>
+                <div class="body">
+                    <div class="title">此前驳回意见</div>
+                    <div>${existingApproval.comment}</div>
+                </div>
+            </div>
+        ` : ''}
+        <div class="rejection-form" id="rejectionForm" style="display:none;">
+            <label class="form-label">驳回意见 <span style="color:var(--danger);">*</span></label>
+            <textarea class="form-textarea" id="rejectionComment" style="min-height:100px;" placeholder="请填写驳回原因（不少于10字）"></textarea>
+            <div class="char-count" id="charCount">0 / 10 字以上</div>
+        </div>
+    `;
+
+    $('#approvalModalFooter').innerHTML = `
+        <button class="btn btn-outline" id="btnShowReject" onclick="showRejectionForm()">&#10060; 驳回</button>
+        <button class="btn btn-success" onclick="approveArticle()">&#9989; 审批通过</button>
+        <button class="btn btn-danger" id="btnConfirmReject" onclick="rejectArticle()" style="display:none;">确认驳回</button>
+        <button class="btn btn-outline" id="btnCancelReject" onclick="hideRejectionForm()" style="display:none;">取消</button>
+    `;
+
+    // 监听驳回意见字数
+    setTimeout(() => {
+        const textarea = $('#rejectionComment');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                const len = this.value.length;
+                const cc = $('#charCount');
+                cc.textContent = len + ' / 10 字以上';
+                cc.className = 'char-count' + (len < 10 ? ' warn' : '');
+            });
+        }
+    }, 100);
+
+    $('#approvalModal').classList.add('active');
+}
+
+function closeApprovalModal() {
+    $('#approvalModal').classList.remove('active');
+    hideRejectionForm();
+    approvingArticleId = null;
+}
+
+function showRejectionForm() {
+    $('#rejectionForm').style.display = 'block';
+    $('#btnShowReject').style.display = 'none';
+    $('#btnConfirmReject').style.display = '';
+    $('#btnCancelReject').style.display = '';
+}
+
+function hideRejectionForm() {
+    $('#rejectionForm').style.display = 'none';
+    $('#btnShowReject').style.display = '';
+    $('#btnConfirmReject').style.display = 'none';
+    $('#btnCancelReject').style.display = 'none';
+}
+
+function approveArticle() {
+    if (!approvingArticleId) return;
+    const article = articles.find(a => a.id === approvingArticleId);
+    if (!article) return;
+
+    article.status = 'approved';
+    article.updatedAt = '2026-05-24 16:00';
+    approvals.push({
+        id: nextId(approvals),
+        articleId: article.id,
+        reviewer: '王审批',
+        result: 'approved',
+        comment: '内容符合要求，同意发布。',
+        reviewedAt: '2026-05-24 16:00',
+    });
+    addNotification('张编辑', `您的稿件《${article.title}》已审批通过`, '2026-05-24 16:00');
+    addAuditLog('王审批', `审批通过了稿件《${article.title}》`);
+
+    closeApprovalModal();
+    showToast('审批通过', 'success');
+    renderApproverPending();
+    renderApproverHistory();
+    updateSidebar();
+    updateNotificationDot();
+}
+
+function rejectArticle() {
+    if (!approvingArticleId) return;
+    const comment = $('#rejectionComment')?.value.trim() || '';
+    if (comment.length < 10) {
+        showToast('驳回意见不少于10字', 'error');
+        return;
+    }
+
+    const article = articles.find(a => a.id === approvingArticleId);
+    if (!article) return;
+
+    article.status = 'rejected';
+    article.updatedAt = '2026-05-24 16:30';
+    approvals.push({
+        id: nextId(approvals),
+        articleId: article.id,
+        reviewer: '王审批',
+        result: 'rejected',
+        comment,
+        reviewedAt: '2026-05-24 16:30',
+    });
+    addNotification('张编辑', `您的稿件《${article.title}》已被驳回，请查看驳回意见`, '2026-05-24 16:30');
+    addAuditLog('王审批', `驳回了稿件《${article.title}》，意见：${comment}`);
+
+    closeApprovalModal();
+    showToast('已驳回', 'error');
+    renderApproverPending();
+    renderApproverHistory();
+    updateSidebar();
+    updateNotificationDot();
+}
+
+// ====== 通知 ======
+function addNotification(user, text, time) {
+    notifications.unshift({ id: nextId(notifications), text, time, read: false });
+    renderNotifications();
+    updateNotificationDot();
+}
+
+function renderNotifications() {
+    const list = $('#notificationList');
+    if (notifications.length === 0) {
+        list.innerHTML = '<div class="notification-item" style="text-align:center;color:var(--gray-500);">暂无通知</div>';
+        return;
+    }
+    list.innerHTML = notifications.slice(0, 10).map(n => `
+        <div class="notification-item ${n.read ? '' : 'unread'}">
+            <div>${n.text}</div>
+            <div class="time">${n.time}</div>
+        </div>
+    `).join('');
+}
+
+function markAllRead() {
+    notifications.forEach(n => n.read = true);
+    renderNotifications();
+    updateNotificationDot();
+}
+
+function updateNotificationDot() {
+    const unread = notifications.some(n => !n.read);
+    $('#notificationDot').style.display = unread ? '' : 'none';
+}
+
+// ====== 操作日志 ======
+function addAuditLog(user, action) {
+    auditLog.unshift({ time: '2026-05-24 16:30', user, action });
+    renderAuditLog();
+}
+
+function renderAuditLog() {
+    const list = $('#auditLogList');
+    list.innerHTML = auditLog.map(l => `
+        <div class="audit-log-item">
+            <span class="time">${l.time}</span>
+            <span class="user">${l.user}</span>
+            <span class="action">${l.action}</span>
+        </div>
+    `).join('');
+}
+
+// ====== 事件绑定 ======
+// 角色切换
+$$('.role-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const role = this.dataset.role;
+        if (role === currentRole) return;
+        currentRole = role;
+
+        $$('.role-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        if (role === 'editor') {
+            currentPanel = 'editor-list';
+            currentStatusFilter = 'all';
+        } else {
+            currentPanel = 'approver-pending';
+        }
+
+        updateSidebar();
+        navigateTo(currentPanel);
+    });
+});
+
+// 状态 Tab 切换
+$$('#statusTabs .status-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        $$('#statusTabs .status-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        currentStatusFilter = this.dataset.status;
+        renderEditorList();
+    });
+});
+
+// 通知铃铛
+$('#notificationBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    $('#notificationDropdown').classList.toggle('open');
+    renderNotifications();
+});
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#notificationDropdown') && !e.target.closest('#notificationBtn')) {
+        $('#notificationDropdown').classList.remove('open');
+    }
+});
+
+// 弹框点击遮罩关闭
+$$('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === this) closeApprovalModal();
+    });
+});
+
+// ESC 关闭弹框
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeApprovalModal();
+        $('#notificationDropdown').classList.remove('open');
+    }
+});
+
+// ====== 初始化 ======
+function init() {
+    updateSidebar();
+    navigateTo('editor-list');
+    renderNotifications();
+    updateNotificationDot();
+}
+
+init();
+</script>
+</body>
+</html>
