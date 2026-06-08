@@ -6234,44 +6234,87 @@
                             <input type="text" class="pub-search-input" placeholder="请输入企业名称或统一社会信用代码搜索">
                             <button class="pub-search-btn">🔍 搜索</button>
                         </div>
-                        <table>
+                        <!-- 行政许可列表 -->
+                        <table id="xz-license-table">
                             <thead>
                                 <tr>
-                                    <th>企业名称</th>
+                                    <th>主体名称</th>
                                     <th>统一社会信用代码</th>
-                                    <th>许可/处罚机关</th>
-                                    <th>类型</th>
-                                    <th>日期</th>
+                                    <th>许可决定书文书号</th>
+                                    <th>来源部门</th>
+                                    <th>决定日期</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX科技有限公司', '91420100MA4KXXXXX')">武汉XX科技有限公司</a></td>
                                     <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX科技有限公司', '91420100MA4KXXXXX')">91420100MA4KXXXXX</a></td>
+                                    <td>武行审字[2026]第1001号</td>
                                     <td>武汉市市场监管局</td>
-                                    <td>行政许可</td>
                                     <td>2026-05-18</td>
                                 </tr>
                                 <tr>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX医药集团', '91420100MA5NXXXXX')">武汉XX医药集团</a></td>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX医药集团', '91420100MA5NXXXXX')">91420100MA5NXXXXX</a></td>
+                                    <td>武行审字[2026]第1002号</td>
+                                    <td>武汉市药监局</td>
+                                    <td>2026-05-10</td>
+                                </tr>
+                                <tr>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX物流有限公司', '91420100MA6PXXXXX')">武汉XX物流有限公司</a></td>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX物流有限公司', '91420100MA6PXXXXX')">91420100MA6PXXXXX</a></td>
+                                    <td>武交审字[2026]第0501号</td>
+                                    <td>武汉市交通运输局</td>
+                                    <td>2026-05-06</td>
+                                </tr>
+                                <tr>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX餐饮管理有限公司', '91420100MA7QXXXXX')">武汉XX餐饮管理有限公司</a></td>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX餐饮管理有限公司', '91420100MA7QXXXXX')">91420100MA7QXXXXX</a></td>
+                                    <td>武食审字[2026]第0803号</td>
+                                    <td>武汉市市场监督管理局</td>
+                                    <td>2026-04-28</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- 行政处罚列表 -->
+                        <table id="xz-penalty-table" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th>主体名称</th>
+                                    <th>统一社会信用代码</th>
+                                    <th>处罚决定书文书号</th>
+                                    <th>来源部门</th>
+                                    <th>决定日期</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
                                     <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('湖北XX贸易有限公司', '91420000MA49XXXXX')">湖北XX贸易有限公司</a></td>
                                     <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('湖北XX贸易有限公司', '91420000MA49XXXXX')">91420000MA49XXXXX</a></td>
+                                    <td>武税罚[2026]第0201号</td>
                                     <td>武汉市税务局</td>
-                                    <td>行政处罚</td>
                                     <td>2026-05-15</td>
                                 </tr>
                                 <tr>
                                     <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX建筑工程有限公司', '91420100MA4LXXXXX')">武汉XX建筑工程有限公司</a></td>
                                     <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX建筑工程有限公司', '91420100MA4LXXXXX')">91420100MA4LXXXXX</a></td>
+                                    <td>武建罚[2026]第0301号</td>
                                     <td>武汉市住建局</td>
-                                    <td>行政处罚</td>
                                     <td>2026-05-12</td>
                                 </tr>
                                 <tr>
-                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX医药集团', '91420100MA5NXXXXX')">武汉XX医药集团</a></td>
-                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX医药集团', '91420100MA5NXXXXX')">91420100MA5NXXXXX</a></td>
-                                    <td>武汉市药监局</td>
-                                    <td>行政许可</td>
-                                    <td>2026-05-10</td>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX环保科技有限公司', '91420100MA8RXXXXX')">武汉XX环保科技有限公司</a></td>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX环保科技有限公司', '91420100MA8RXXXXX')">91420100MA8RXXXXX</a></td>
+                                    <td>武环罚[2026]第0015号</td>
+                                    <td>武汉市生态环境局</td>
+                                    <td>2026-04-20</td>
+                                </tr>
+                                <tr>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX房地产开发有限公司', '91420100MA9SXXXXX')">武汉XX房地产开发有限公司</a></td>
+                                    <td><a href="javascript:void(0)" class="report-link" onclick="openEnterpriseDetail('武汉XX房地产开发有限公司', '91420100MA9SXXXXX')">91420100MA9SXXXXX</a></td>
+                                    <td>武市监罚[2026]第0422号</td>
+                                    <td>武汉市市场监督管理局</td>
+                                    <td>2026-04-15</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -10737,6 +10780,24 @@
                 document.querySelectorAll('#chengnuoSubtabs .chengnuo-subtab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 // 实际应用中此处根据分类筛选数据
+            });
+        });
+        
+        // ========== 行政双公示 - 行政许可/行政处罚切换 ==========
+        document.querySelectorAll('#ptab-xingzheng .np-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('#ptab-xingzheng .np-tab').forEach(function(t) {
+                    t.classList.remove('active');
+                    t.style.background = 'white';
+                    t.style.color = 'var(--gray-600)';
+                });
+                this.classList.add('active');
+                this.style.background = 'var(--primary)';
+                this.style.color = 'white';
+                
+                var isLicense = this.textContent.trim() === '行政许可';
+                document.getElementById('xz-license-table').style.display = isLicense ? '' : 'none';
+                document.getElementById('xz-penalty-table').style.display = isLicense ? 'none' : '';
             });
         });
         
