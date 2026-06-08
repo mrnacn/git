@@ -154,14 +154,14 @@
             height: 44px;
             border: 2px solid var(--primary);
             border-radius: 8px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 2px 8px rgba(196,18,48,0.12);
             transition: box-shadow 0.2s;
         }
         .header-search:focus-within {
             box-shadow: 0 2px 14px rgba(196,18,48,0.25);
         }
-        
+
         .search-type {
             padding: 0 12px;
             background: #fef2f4;
@@ -174,13 +174,20 @@
             outline: none;
             min-width: 96px;
             appearance: auto;
+            border-radius: 6px 0 0 6px;
         }
         .search-type:hover {
             background: #fde4e8;
         }
-        
-        .search-input {
+
+        .search-input-wrap {
             flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 100%;
             padding: 0 14px;
             border: none;
             font-size: 14px;
@@ -191,7 +198,7 @@
         .search-input::placeholder {
             color: var(--gray-300);
         }
-        
+
         .search-btn {
             padding: 0 26px;
             background: var(--primary);
@@ -203,9 +210,231 @@
             letter-spacing: 0.5px;
             transition: background 0.2s;
             white-space: nowrap;
+            border-radius: 0 6px 0 0;
         }
-        
+
         .search-btn:hover { background: var(--primary-dark); }
+
+        /* ====== 搜索自动补全下拉 ====== */
+        .search-autocomplete {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: -2px;
+            right: -2px;
+            margin-top: 4px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.14);
+            z-index: 5000;
+            max-height: 380px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+        }
+        .search-autocomplete.show { display: block; animation: fadeIn 0.15s ease; }
+
+        .search-ac-section {
+            padding: 8px 14px;
+            font-size: 11px;
+            color: var(--gray-400);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-ac-section .ac-clear {
+            cursor: pointer;
+            color: var(--gray-400);
+            font-size: 11px;
+            font-weight: 400;
+        }
+        .search-ac-section .ac-clear:hover { color: var(--secondary); }
+
+        .search-ac-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .search-ac-item:hover,
+        .search-ac-item.active {
+            background: #fef2f4;
+            color: var(--primary);
+        }
+        .search-ac-item .ac-icon {
+            font-size: 13px;
+            color: var(--gray-400);
+            flex-shrink: 0;
+        }
+        .search-ac-item .ac-text { flex: 1; }
+        .search-ac-item .ac-type {
+            font-size: 11px;
+            color: var(--gray-400);
+            background: var(--gray-100);
+            padding: 1px 6px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .search-ac-item .ac-highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .search-ac-divider {
+            height: 1px;
+            background: var(--gray-100);
+            margin: 4px 0;
+        }
+
+        /* ====== 搜索结果页面 ====== */
+        .search-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 16px;
+        }
+        .search-result-count {
+            font-size: 15px;
+            color: var(--gray-700);
+        }
+        .search-result-count strong {
+            color: var(--primary);
+            font-size: 18px;
+        }
+        .search-result-sort {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+        .search-result-sort .sort-btn {
+            padding: 4px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            color: var(--gray-600);
+            font-size: 13px;
+            transition: all 0.15s;
+        }
+        .search-result-sort .sort-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .search-result-sort .sort-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .search-result-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .search-result-item {
+            background: white;
+            border-radius: 8px;
+            padding: 18px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.15s;
+            border-left: 3px solid transparent;
+        }
+        .search-result-item:hover {
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            transform: translateX(2px);
+            border-left-color: var(--primary);
+        }
+        .search-result-item .sr-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 6px;
+        }
+        .search-result-item .sr-code {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+        .search-result-item .sr-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .search-result-item .sr-desc {
+            font-size: 13px;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+        .search-highlight {
+            background: #fef08a;
+            color: var(--gray-900);
+            padding: 1px 2px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        .search-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-500);
+        }
+        .search-empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+        /* ====== 高级搜索面板 ====== */
+        .advanced-search-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary);
+            font-size: 13px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border: 1px dashed var(--gray-300);
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        .advanced-search-toggle:hover { border-color: var(--primary); background: #fef2f4; }
+        .advanced-search-toggle .adv-icon { font-size: 14px; transition: transform 0.3s; }
+        .advanced-search-toggle.open .adv-icon { transform: rotate(180deg); }
+
+        .advanced-search-panel {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        .advanced-search-panel.show { display: grid; animation: fadeIn 0.2s ease; }
+        .adv-field { display: flex; flex-direction: column; gap: 4px; }
+        .adv-field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+        .adv-field select,
+        .adv-field input {
+            padding: 8px 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--gray-700);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .adv-field select:focus,
+        .adv-field input:focus { border-color: var(--primary); }
+        .adv-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
         
         /* 主导航 - 粘性定位 */
         .main-nav {
@@ -1400,6 +1629,238 @@
             flex-shrink: 0;
         }
         
+        /* ====== 企业信用档案详情页 ====== */
+        .ent-header-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 28px;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ent-header-card::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(196,18,48,0.03) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .ent-avatar {
+            width: 80px; height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .ent-avatar.rating-AAA { background: linear-gradient(135deg, #16a34a, #22c55e); }
+        .ent-avatar.rating-AA { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+        .ent-avatar.rating-A { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+        .ent-avatar.rating-B { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .ent-avatar.rating-C { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
+        .ent-info { flex: 1; position: relative; z-index: 1; }
+        .ent-info .ent-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ent-info .ent-code {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        .ent-info .ent-meta-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--gray-600);
+        }
+        .ent-info .ent-meta-row span { display: flex; align-items: center; gap: 4px; }
+        .ent-info .ent-meta-row .meta-label { color: var(--gray-400); }
+
+        .ent-score-card {
+            flex-shrink: 0;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            min-width: 140px;
+        }
+        .ent-score-ring {
+            position: relative;
+            width: 100px; height: 100px;
+            margin: 0 auto 8px;
+        }
+        .ent-score-ring svg { transform: rotate(-90deg); }
+        .ent-score-ring .ring-bg {
+            fill: none;
+            stroke: var(--gray-200);
+            stroke-width: 8;
+        }
+        .ent-score-ring .ring-fill {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+        .ent-score-ring .ring-fill.high { stroke: var(--success); }
+        .ent-score-ring .ring-fill.medium { stroke: var(--warning); }
+        .ent-score-ring .ring-fill.low { stroke: var(--secondary); }
+        .ent-score-num {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .ent-score-label { font-size: 12px; color: var(--gray-500); }
+
+        .ent-detail-tabs {
+            display: flex;
+            gap: 0;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .ent-detail-tab {
+            padding: 14px 24px;
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--gray-600);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .ent-detail-tab:hover { color: var(--primary); background: #fef2f4; }
+        .ent-detail-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+            background: #fef2f4;
+        }
+        .ent-detail-tab .tab-badge {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+        .ent-detail-tab.active .tab-badge { background: var(--primary-light); color: var(--primary); }
+
+        .ent-detail-panel {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .ent-detail-content { display: none; padding: 24px 28px; }
+        .ent-detail-content.active { display: block; animation: fadeIn 0.25s ease; }
+
+        .ent-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .ent-info-item {
+            padding: 14px 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+        }
+        .ent-info-item .info-label {
+            font-size: 12px;
+            color: var(--gray-400);
+            margin-bottom: 4px;
+        }
+        .ent-info-item .info-value {
+            font-size: 15px;
+            color: var(--gray-800);
+            font-weight: 600;
+        }
+
+        .penalty-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .penalty-table th { background: var(--gray-100); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--gray-700); font-size: 12px; }
+        .penalty-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); color: var(--gray-700); }
+        .penalty-table tr:hover td { background: var(--gray-50); }
+
+        .credit-timeline { position: relative; padding-left: 32px; }
+        .credit-timeline::before {
+            content: '';
+            position: absolute;
+            left: 12px; top: 0; bottom: 0;
+            width: 2px;
+            background: var(--gray-200);
+        }
+        .tl-item { position: relative; padding: 0 0 24px 20px; }
+        .tl-item::before {
+            content: '';
+            position: absolute;
+            left: -23px; top: 4px;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        .tl-item.positive::before { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
+        .tl-item.negative::before { background: var(--secondary); box-shadow: 0 0 0 2px var(--secondary); }
+        .tl-item.neutral::before { background: var(--info); box-shadow: 0 0 0 2px var(--info); }
+        .tl-item .tl-date { font-size: 12px; color: var(--gray-400); margin-bottom: 4px; }
+        .tl-item .tl-title { font-size: 14px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; }
+        .tl-item .tl-desc { font-size: 13px; color: var(--gray-500); }
+
+        .honor-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .honor-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            border-left: 3px solid var(--success);
+        }
+        .honor-card .honor-icon {
+            width: 40px; height: 40px;
+            border-radius: 8px;
+            background: var(--success-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .honor-card .honor-info .honor-name { font-size: 14px; font-weight: 600; color: var(--gray-800); }
+        .honor-card .honor-info .honor-from { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+        .honor-card .honor-info .honor-date { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+        .empty-section {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-400);
+            font-size: 14px;
+        }
+        .empty-section .empty-icon { font-size: 36px; margin-bottom: 10px; }
         /* 信用动态页面 - 左右布局 */
         .dynamic-layout {
             display: grid;
@@ -5383,14 +5844,18 @@
                 </div>
             </div>
             
-            <div class="header-search">
-                <select class="search-type">
-                    <option>企业</option>
-                    <option>个人</option>
-                    <option>社会组织</option>
+            <div class="header-search" id="headerSearch">
+                <select class="search-type" id="searchType">
+                    <option value="all">全部</option>
+                    <option value="enterprise">企业</option>
+                    <option value="person">个人</option>
+                    <option value="org">社会组织</option>
                 </select>
-                <input type="text" class="search-input" placeholder="请输入企业名称、统一社会信用代码">
-                <button class="search-btn">查询</button>
+                <div class="search-input-wrap">
+                    <input type="text" class="search-input" id="searchInput" placeholder="请输入企业名称、统一社会信用代码" autocomplete="off">
+                    <div class="search-autocomplete" id="searchAutocomplete"></div>
+                </div>
+                <button class="search-btn" id="searchBtn">查询</button>
             </div>
         </div>
         
@@ -5616,23 +6081,23 @@
                     </div>
                     <div class="credit-list-body">
                         <div class="credit-list-item">
-                            <span class="name">武汉XX科技有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">武汉XX科技有限公司</span>
                             <span class="tag tag-red">重大税收违法</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">湖北XX贸易有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">湖北XX贸易有限公司</span>
                             <span class="tag tag-red">严重失信</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">武汉XX建筑工程有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">武汉XX建筑工程有限公司</span>
                             <span class="tag tag-red">安全生产失信</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">武汉XX物流有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">武汉XX物流有限公司</span>
                             <span class="tag tag-red">拖欠工资</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">湖北XX投资管理有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">湖北XX投资管理有限公司</span>
                             <span class="tag tag-red">失信被执行</span>
                         </div>
                     </div>
@@ -5647,23 +6112,23 @@
                     </div>
                     <div class="credit-list-body">
                         <div class="credit-list-item">
-                            <span class="name">武汉XX医药集团</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">武汉XX医药集团</span>
                             <span class="tag tag-green">A级纳税人</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">武汉XX科技有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">武汉XX科技有限公司</span>
                             <span class="tag tag-green">守合同重信用</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">武汉XX物业有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">武汉XX物业有限公司</span>
                             <span class="tag tag-green">诚信示范</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">湖北XX建设集团</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">湖北XX建设集团</span>
                             <span class="tag tag-green">AAA级信用</span>
                         </div>
                         <div class="credit-list-item">
-                            <span class="name">武汉XX光电股份有限公司</span>
+                            <span class="name" style="cursor:pointer;" onclick="openEnterpriseDetail(this.textContent,'')">武汉XX光电股份有限公司</span>
                             <span class="tag tag-green">A级纳税人</span>
                         </div>
                     </div>
@@ -8097,7 +8562,117 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- ==================== 搜索结果页面 ==================== -->
+    <div id="page-search" class="page-section">
+        <div class="page-hero">
+            <div class="hero-inner">
+                <div class="breadcrumb">
+                    <a href="#" data-page="home">首页</a>
+                    <span class="separator">&rsaquo;</span>
+                    <span class="current">搜索结果</span>
+                </div>
+                <div class="page-hero-title">
+                    <h2>信用查询</h2>
+                    <span class="subtitle">查询企业、个人及社会组织信用信息</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <!-- 搜索栏 -->
+            <div style="display:flex;gap:12px;margin-bottom:16px;">
+                <div style="flex:1;display:flex;gap:0;border:2px solid var(--primary);border-radius:8px;overflow:hidden;height:44px;">
+                    <select id="searchPageType" style="padding:0 12px;background:#fef2f4;border:none;border-right:2px solid var(--primary);font-size:14px;color:var(--primary);font-weight:500;outline:none;">
+                        <option value="all">全部</option>
+                        <option value="enterprise">企业</option>
+                        <option value="person">个人</option>
+                        <option value="org">社会组织</option>
+                    </select>
+                    <input type="text" id="searchPageInput" placeholder="请输入企业名称、统一社会信用代码或关键字" style="flex:1;padding:0 14px;border:none;font-size:14px;outline:none;color:var(--gray-800);" autocomplete="off">
+                </div>
+                <button class="btn btn-primary" id="searchPageBtn" style="height:44px;padding:0 28px;">🔍 搜索</button>
+            </div>
+
+            <!-- 高级搜索 -->
+            <div style="margin-bottom:16px;">
+                <span class="advanced-search-toggle" id="advSearchToggle" onclick="toggleAdvancedSearch()">
+                    <span class="adv-icon">⚙</span> 高级搜索
+                </span>
+                <div class="advanced-search-panel" id="advSearchPanel">
+                    <div class="adv-field">
+                        <label>所属行业</label>
+                        <select id="advIndustry">
+                            <option value="">不限</option>
+                            <option>制造业</option><option>建筑业</option><option>批发零售</option>
+                            <option>信息技术</option><option>金融业</option><option>房地产</option>
+                            <option>交通运输</option><option>住宿餐饮</option><option>教育</option>
+                            <option>医疗卫生</option><option>文化体育</option><option>农林牧渔</option>
+                        </select>
+                    </div>
+                    <div class="adv-field">
+                        <label>所在区域</label>
+                        <select id="advDistrict">
+                            <option value="">不限</option>
+                            <option>武昌区</option><option>洪山区</option><option>江汉区</option>
+                            <option>江岸区</option><option>东西湖区</option><option>硚口区</option>
+                            <option>汉阳区</option><option>青山区</option><option>江夏区</option>
+                            <option>黄陂区</option><option>蔡甸区</option><option>新洲区</option><option>汉南区</option>
+                        </select>
+                    </div>
+                    <div class="adv-field">
+                        <label>信用等级</label>
+                        <select id="advLevel">
+                            <option value="">不限</option>
+                            <option>AAA</option><option>AA</option><option>A</option>
+                            <option>B</option><option>C</option><option>未评级</option>
+                        </select>
+                    </div>
+                    <div class="adv-field">
+                        <label>成立时间</label>
+                        <select id="advYear">
+                            <option value="">不限</option>
+                            <option>近1年</option><option>1-3年</option>
+                            <option>3-5年</option><option>5-10年</option><option>10年以上</option>
+                        </select>
+                    </div>
+                    <div class="adv-actions">
+                        <button class="btn btn-secondary" onclick="resetAdvancedSearch()">重置</button>
+                        <button class="btn btn-primary" onclick="applyAdvancedSearch()">应用筛选</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搜索结果区域 -->
+            <div id="searchResultArea">
+                <div class="search-empty">
+                    <div class="empty-icon">🔍</div>
+                    <p style="font-size:16px;font-weight:600;color:var(--gray-600);">请输入关键字进行查询</p>
+                    <p style="font-size:13px;color:var(--gray-400);margin-top:4px;">支持企业名称、统一社会信用代码、法定代表人等</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 企业信用档案详情页 ==================== -->
+    <div id="page-enterprise-detail" class="page-section">
+        <div class="page-hero">
+            <div class="hero-inner">
+                <div class="breadcrumb">
+                    <a href="#" data-page="home">首页</a>
+                    <span class="separator">&rsaquo;</span>
+                    <span class="current">企业信用档案</span>
+                </div>
+                <div class="page-hero-title">
+                    <h2>企业信用档案</h2>
+                    <span class="subtitle">全面了解企业信用状况</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content" id="entDetailContent">
+            <!-- 由JS动态渲染 -->
+        </div>
+    </div>
+
     <!-- 底部 -->
     <footer class="footer">
         <div class="footer-content">
@@ -8799,12 +9374,12 @@
         
         // 各角色可访问的功能模块
         const ROLE_PERMISSIONS = {
-            R01: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R02: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R03: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R05: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R07: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R08: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list']
+            R01: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'search', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'enterprise-detail'],
+            R02: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'search', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'enterprise-detail'],
+            R03: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'search', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'enterprise-detail'],
+            R05: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'search', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'enterprise-detail'],
+            R07: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'search', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'enterprise-detail'],
+            R08: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'search', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'enterprise-detail']
         };
         
         let currentRole = 'R01';
@@ -10244,6 +10819,532 @@
             }
         })();
         
+        // ========== 搜索系统 ==========
+
+        // Mock搜索数据库
+        var MOCK_SEARCH_DATA = [
+            { name: '武汉征信有限公司', code: '914201007646214565', type: 'enterprise', industry: '信息技术', district: '武昌区', level: 'AAA', year: '2010', legalPerson: '张三', desc: '主营企业征信服务、信用评级、信用管理咨询等业务。' },
+            { name: '华工科技产业股份有限公司', code: '914201007646214566', type: 'enterprise', industry: '制造业', district: '洪山区', level: 'AAA', year: '2005', legalPerson: '李华', desc: '激光加工设备、光通信器件研发制造。' },
+            { name: '东风汽车集团有限公司', code: '914201007646214567', type: 'enterprise', industry: '制造业', district: '江岸区', level: 'AAA', year: '1998', legalPerson: '王强', desc: '汽车整车及零部件制造销售。' },
+            { name: '武汉光谷联合集团有限公司', code: '914201007646214568', type: 'enterprise', industry: '房地产', district: '洪山区', level: 'AA', year: '2012', legalPerson: '赵明', desc: '产业园区开发运营、科技企业孵化。' },
+            { name: '武汉商贸集团有限公司', code: '914201007646214569', type: 'enterprise', industry: '批发零售', district: '江汉区', level: 'AA', year: '2008', legalPerson: '刘洋', desc: '商业贸易、物流供应链管理。' },
+            { name: '中建三局集团有限公司', code: '914201007646214570', type: 'enterprise', industry: '建筑业', district: '武昌区', level: 'AAA', year: '2000', legalPerson: '陈刚', desc: '房屋建筑、基础设施投资建设。' },
+            { name: '武汉长江存储科技有限公司', code: '914201007646214571', type: 'enterprise', industry: '信息技术', district: '洪山区', level: 'AA', year: '2016', legalPerson: '周磊', desc: '集成电路芯片设计制造。' },
+            { name: '人福医药集团股份有限公司', code: '914201007646214572', type: 'enterprise', industry: '医疗卫生', district: '江夏区', level: 'A', year: '2003', legalPerson: '黄伟', desc: '药品研发、生产和销售。' },
+            { name: '武汉高德红外股份有限公司', code: '914201007646214573', type: 'enterprise', industry: '制造业', district: '洪山区', level: 'AAA', year: '2004', legalPerson: '马超', desc: '红外热成像产品研发制造。' },
+            { name: '湖北能源集团股份有限公司', code: '914201007646214574', type: 'enterprise', industry: '制造业', district: '江岸区', level: 'AA', year: '2001', legalPerson: '林峰', desc: '电力能源投资开发。' },
+            { name: '武汉当代科技产业集团', code: '914201007646214575', type: 'enterprise', industry: '信息技术', district: '武昌区', level: 'B', year: '2015', legalPerson: '孙浩', desc: '高新技术产业投资。' },
+            { name: '九州通医药集团股份有限公司', code: '914201007646214576', type: 'enterprise', industry: '医疗卫生', district: '汉阳区', level: 'AAA', year: '1999', legalPerson: '吴亮', desc: '医药流通、物流配送服务。' },
+            { name: '卓尔智联集团有限公司', code: '914201007646214577', type: 'enterprise', industry: '批发零售', district: '黄陂区', level: 'A', year: '2011', legalPerson: '郑斌', desc: 'B2B交易平台运营。' },
+            { name: '武汉锐科光纤激光技术股份有限公司', code: '914201007646214578', type: 'enterprise', industry: '制造业', district: '洪山区', level: 'AAA', year: '2007', legalPerson: '许峰', desc: '光纤激光器研发制造。' },
+            { name: '武汉天马微电子有限公司', code: '914201007646214579', type: 'enterprise', industry: '制造业', district: '江夏区', level: 'AA', year: '2013', legalPerson: '曹明', desc: '中小尺寸显示面板制造。' },
+            { name: '武汉凡谷电子技术股份有限公司', code: '914201007646214580', type: 'enterprise', industry: '信息技术', district: '洪山区', level: 'A', year: '2006', legalPerson: '何勇', desc: '射频器件研发制造。' },
+            { name: '武汉汉口银行股份有限公司', code: '914201007646214581', type: 'enterprise', industry: '金融业', district: '江汉区', level: 'AAA', year: '1997', legalPerson: '韩雪', desc: '商业银行综合金融服务。' },
+            { name: '武汉三特索道集团股份有限公司', code: '914201007646214582', type: 'enterprise', industry: '文化体育', district: '武昌区', level: 'B', year: '2014', legalPerson: '沈刚', desc: '旅游资源开发运营。' },
+            { name: '武汉XX科技有限公司', code: '914201007646214583', type: 'enterprise', industry: '信息技术', district: '东西湖区', level: 'C', year: '2018', legalPerson: '丁某', desc: '该公司存在重大税收违法行为。' },
+            { name: '湖北XX贸易有限公司', code: '914201007646214584', type: 'enterprise', industry: '批发零售', district: '硚口区', level: 'C', year: '2017', legalPerson: '杨某', desc: '该公司列入严重失信主体名单。' },
+            { name: '武汉XX建筑工程有限公司', code: '914201007646214585', type: 'enterprise', industry: '建筑业', district: '青山区', level: 'C', year: '2016', legalPerson: '吴某', desc: '存在安全生产失信行为。' },
+            { name: '武汉XX物流有限公司', code: '914201007646214586', type: 'enterprise', industry: '交通运输', district: '东西湖区', level: 'C', year: '2015', legalPerson: '张某', desc: '存在拖欠工资失信行为。' },
+            { name: '湖北XX投资管理有限公司', code: '914201007646214587', type: 'enterprise', industry: '金融业', district: '江汉区', level: 'C', year: '2014', legalPerson: '李某', desc: '失信被执行人。' },
+            { name: '武汉市XX教育培训学校', code: '914201007646214588', type: 'org', industry: '教育', district: '武昌区', level: 'A', year: '2009', legalPerson: '邱某', desc: '民办教育培训机构。' },
+            { name: '武汉市XX商会', code: '914201007646214589', type: 'org', industry: '文化体育', district: '江汉区', level: '未评级', year: '2006', legalPerson: '唐某', desc: '行业商会组织。' },
+            { name: '武汉市XX医院', code: '914201007646214590', type: 'org', industry: '医疗卫生', district: '汉阳区', level: 'AA', year: '2002', legalPerson: '冯某', desc: '民营综合医院。' },
+            { name: '张某某', code: '420106199001011234', type: 'person', industry: '', district: '武昌区', level: '优秀', year: '', legalPerson: '', desc: '个人信用分：850分（优秀），无失信记录。' },
+            { name: '李某某', code: '420103198505152345', type: 'person', industry: '', district: '江汉区', level: '良好', year: '', legalPerson: '', desc: '个人信用分：720分（良好），有1条轻微违约记录。' },
+            { name: '王某某', code: '420111199212013456', type: 'person', industry: '', district: '洪山区', level: '待修复', year: '', legalPerson: '', desc: '个人信用分：580分（待修复），存在失信被执行记录。' }
+        ];
+
+        // 热门搜索词
+        var HOT_SEARCHES = ['武汉征信', '东风汽车', '华工科技', '严重失信', 'A级纳税人', '信用修复'];
+
+        // 搜索历史（localStorage）
+        function getSearchHistory() {
+            try {
+                return JSON.parse(localStorage.getItem('xywh_search_history') || '[]');
+            } catch(e) { return []; }
+        }
+        function addSearchHistory(keyword) {
+            if (!keyword.trim()) return;
+            var history = getSearchHistory();
+            history = history.filter(function(h) { return h !== keyword; });
+            history.unshift(keyword);
+            if (history.length > 10) history = history.slice(0, 10);
+            localStorage.setItem('xywh_search_history', JSON.stringify(history));
+        }
+        function clearSearchHistory() {
+            localStorage.removeItem('xywh_search_history');
+            renderAutocomplete();
+        }
+
+        // 模糊匹配搜索
+        function searchData(keyword, filters) {
+            keyword = (keyword || '').toLowerCase().trim();
+            filters = filters || {};
+            return MOCK_SEARCH_DATA.filter(function(item) {
+                if (keyword) {
+                    var matchName = item.name.toLowerCase().indexOf(keyword) > -1;
+                    var matchCode = item.code.toLowerCase().indexOf(keyword) > -1;
+                    var matchPerson = (item.legalPerson || '').toLowerCase().indexOf(keyword) > -1;
+                    if (!matchName && !matchCode && !matchPerson) return false;
+                }
+                if (filters.type && filters.type !== 'all' && item.type !== filters.type) return false;
+                if (filters.industry && item.industry !== filters.industry) return false;
+                if (filters.district && item.district !== filters.district) return false;
+                if (filters.level && item.level !== filters.level) return false;
+                return true;
+            });
+        }
+
+        // 关键词高亮
+        function highlightKeyword(text, keyword) {
+            if (!keyword || !text) return text;
+            var escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var re = new RegExp('(' + escaped + ')', 'gi');
+            return text.replace(re, '<span class="search-highlight">$1</span>');
+        }
+
+        // ========== Autocomplete下拉 ==========
+        var acActiveIndex = -1;
+
+        function renderAutocomplete() {
+            var ac = document.getElementById('searchAutocomplete');
+            var keyword = document.getElementById('searchInput').value.trim();
+            var html = '';
+            acActiveIndex = -1;
+
+            if (keyword) {
+                // 搜索建议
+                var results = searchData(keyword).slice(0, 6);
+                if (results.length > 0) {
+                    html += '<div class="search-ac-section">搜索建议</div>';
+                    results.forEach(function(item, i) {
+                        html += '<div class="search-ac-item" data-ac-idx="' + i + '" data-ac-name="' + item.name + '">';
+                        html += '<span class="ac-icon">' + (item.type === 'person' ? '👤' : item.type === 'org' ? '🏛' : '🏢') + '</span>';
+                        html += '<span class="ac-text">' + highlightKeyword(item.name, keyword) + '</span>';
+                        html += '<span class="ac-code" style="font-size:11px;color:var(--gray-400);">' + highlightKeyword(item.code, keyword) + '</span>';
+                        html += '<span class="ac-type">' + (item.type === 'enterprise' ? '企业' : item.type === 'person' ? '个人' : '组织') + '</span>';
+                        html += '</div>';
+                    });
+                } else {
+                    html += '<div class="search-ac-item" style="color:var(--gray-400);cursor:default;"><span class="ac-icon">🔍</span><span class="ac-text">未找到匹配结果</span></div>';
+                }
+                ac.classList.add('show');
+            } else {
+                // 搜索历史
+                var history = getSearchHistory();
+                if (history.length > 0) {
+                    html += '<div class="search-ac-section">最近搜索 <span class="ac-clear" onclick="event.stopPropagation();clearSearchHistory();">清除</span></div>';
+                    history.forEach(function(h, i) {
+                        html += '<div class="search-ac-item" data-ac-idx="' + i + '" data-ac-name="' + h + '">';
+                        html += '<span class="ac-icon">🕐</span>';
+                        html += '<span class="ac-text">' + h + '</span>';
+                        html += '</div>';
+                    });
+                    html += '<div class="search-ac-divider"></div>';
+                }
+                // 热门搜索
+                html += '<div class="search-ac-section">🔥 热门搜索</div>';
+                HOT_SEARCHES.forEach(function(h, i) {
+                    html += '<div class="search-ac-item" data-ac-idx="' + (history.length + i) + '" data-ac-name="' + h + '">';
+                    html += '<span class="ac-icon">🔥</span>';
+                    html += '<span class="ac-text">' + h + '</span>';
+                    html += '</div>';
+                });
+                if (keyword === '' && history.length === 0) {
+                    ac.classList.add('show');
+                } else {
+                    ac.classList.add('show');
+                }
+            }
+            document.getElementById('searchAutocomplete').innerHTML = html;
+        }
+
+        function hideAutocomplete() {
+            var ac = document.getElementById('searchAutocomplete');
+            ac.classList.remove('show');
+            acActiveIndex = -1;
+        }
+
+        function selectAcItem(el) {
+            var name = el.getAttribute('data-ac-name');
+            if (name) {
+                document.getElementById('searchInput').value = name;
+                hideAutocomplete();
+                executeSearch();
+            }
+        }
+
+        // ========== 搜索执行 ==========
+        function executeSearch() {
+            var keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) return;
+            addSearchHistory(keyword);
+            hideAutocomplete();
+            // 同步搜索参数到搜索页
+            document.getElementById('searchPageInput').value = keyword;
+            document.getElementById('searchPageType').value = document.getElementById('searchType').value;
+            navigateTo('search');
+            performSearch();
+        }
+
+        function performSearch() {
+            var keyword = document.getElementById('searchPageInput').value.trim();
+            var type = document.getElementById('searchPageType').value;
+            var filters = { type: type };
+            var results = searchData(keyword, filters);
+            renderSearchResults(results, keyword);
+        }
+
+        function renderSearchResults(results, keyword) {
+            var area = document.getElementById('searchResultArea');
+            if (!results || results.length === 0) {
+                area.innerHTML = '<div class="search-empty"><div class="empty-icon">😔</div><p style="font-size:16px;font-weight:600;color:var(--gray-600);">未找到相关结果</p><p style="font-size:13px;color:var(--gray-400);margin-top:4px;">请尝试更换关键词或调整筛选条件</p></div>';
+                return;
+            }
+            var html = '<div class="search-result-header">';
+            html += '<span class="search-result-count">共找到 <strong>' + results.length + '</strong> 条结果</span>';
+            html += '<div class="search-result-sort"><span>排序：</span>';
+            html += '<button class="sort-btn active" onclick="sortAndRender(\'default\')">默认</button>';
+            html += '<button class="sort-btn" onclick="sortAndRender(\'level\')">信用等级</button>';
+            html += '<button class="sort-btn" onclick="sortAndRender(\'time\')">成立时间</button>';
+            html += '</div></div>';
+            html += '<div class="search-result-list">';
+            results.forEach(function(item) {
+                var levelClass = '';
+                if (item.level === 'C') levelClass = 'badge-danger';
+                else if (item.level === 'AAA' || item.level === 'AA' || item.level === '优秀') levelClass = 'badge-success';
+                else if (item.level === 'B' || item.level === '待修复') levelClass = 'badge-warning';
+                var typeIcon = item.type === 'person' ? '👤' : item.type === 'org' ? '🏛' : '🏢';
+                var typeName = item.type === 'enterprise' ? '企业' : item.type === 'person' ? '个人' : '社会组织';
+                html += '<div class="search-result-item" onclick="openSearchDetail(\'' + item.name + '\', \'' + item.code + '\')">';
+                html += '<div class="sr-name">' + typeIcon + ' ' + highlightKeyword(item.name, keyword) + '</div>';
+                html += '<div class="sr-code">' + (item.type === 'person' ? '身份证号：' : '统一社会信用代码：') + highlightKeyword(item.code, keyword) + '</div>';
+                html += '<div class="sr-desc">' + highlightKeyword(item.desc, keyword) + '</div>';
+                html += '<div class="sr-tags">';
+                html += '<span class="tag" style="background:var(--gray-100);">' + typeName + '</span>';
+                if (item.industry) html += '<span class="tag" style="background:var(--info-light);color:var(--info);">' + item.industry + '</span>';
+                if (item.district) html += '<span class="tag" style="background:var(--primary-light);color:var(--primary);">' + item.district + '</span>';
+                html += '<span class="badge ' + levelClass + '">' + item.level + '</span>';
+                html += '</div></div>';
+            });
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        function sortAndRender(mode) {
+            var keyword = document.getElementById('searchPageInput').value.trim();
+            var type = document.getElementById('searchPageType').value;
+            var results = searchData(keyword, { type: type });
+            if (mode === 'level') {
+                var order = { 'AAA': 1, 'AA': 2, 'A': 3, 'B': 4, 'C': 5, '优秀': 1, '良好': 2, '待修复': 3, '未评级': 6 };
+                results.sort(function(a, b) { return (order[a.level] || 9) - (order[b.level] || 9); });
+            } else if (mode === 'time') {
+                results.sort(function(a, b) { return parseInt(b.year || '0') - parseInt(a.year || '0'); });
+            }
+            // 更新排序按钮状态
+            var area = document.getElementById('searchResultArea');
+            var btns = area.querySelectorAll('.sort-btn');
+            btns.forEach(function(b) { b.classList.remove('active'); });
+            if (area.querySelector('.sort-btn[onclick*="' + mode + '"]')) {
+                area.querySelector('.sort-btn[onclick*="' + mode + '"]').classList.add('active');
+            }
+            renderSearchResults(results, keyword);
+        }
+
+
+        // ========== 企业信用档案详情 ==========
+        // Mock企业详细数据
+        var MOCK_ENT_DETAIL = {
+            '武汉征信有限公司': {
+                name: '武汉征信有限公司', code: '914201007646214565', rating: 'AAA', score: 85,
+                legalPerson: '张三', capital: '5000万元', establishDate: '2010-03-15',
+                industry: '信息技术', district: '武昌区', address: '武汉市武昌区中北路108号',
+                scope: '企业征信服务、信用评级、信用管理咨询、数据处理服务',
+                penalties: [
+                    { date: '2025-08-12', org: '武汉市税务局', reason: '未按期申报企业所得税', result: '罚款2,000元', status: '已处理' }
+                ],
+                judicial: [],
+                honors: [
+                    { name: 'A级纳税人', from: '国家税务总局', date: '2025年' },
+                    { name: '守合同重信用企业', from: '武汉市市场监管局', date: '2024-2025年' },
+                    { name: '湖北省诚信示范企业', from: '湖北省发改委', date: '2024年' },
+                    { name: 'ISO 27001信息安全管理体系认证', from: '中国质量认证中心', date: '2023年' }
+                ],
+                timeline: [
+                    { date: '2026-05', title: '信用评级AAA', desc: '年度信用评价获评AAA级', type: 'positive' },
+                    { date: '2025-12', title: '获评守合同重信用企业', desc: '被武汉市市场监管局认定为守合同重信用企业', type: 'positive' },
+                    { date: '2025-08', title: '行政处罚', desc: '因未按期申报企业所得税被处罚2,000元，已整改', type: 'negative' },
+                    { date: '2025-05', title: '信用评级AA', desc: '年度信用评价获评AA级', type: 'positive' },
+                    { date: '2024-06', title: '加入信用承诺企业名单', desc: '主动签署信用承诺书，接受社会监督', type: 'positive' },
+                    { date: '2024-03', title: '经营范围变更', desc: '新增数据处理服务业务范围', type: 'neutral' },
+                    { date: '2023-09', title: '获评湖北省诚信示范企业', desc: '被湖北省发改委认定为省级诚信示范企业', type: 'positive' }
+                ]
+            }
+        };
+
+        function getEntDetail(name) {
+            if (MOCK_ENT_DETAIL[name]) return MOCK_ENT_DETAIL[name];
+            for (var key in MOCK_ENT_DETAIL) {
+                if (name.indexOf(key) > -1 || key.indexOf(name) > -1) return MOCK_ENT_DETAIL[key];
+            }
+            return null;
+        }
+
+        function openEnterpriseDetail(name, code) {
+            var detail = getEntDetail(name);
+            if (!detail) {
+                var found = MOCK_SEARCH_DATA.find(function(d) { return d.name === name; });
+                if (found) {
+                    detail = {
+                        name: found.name, code: found.code, rating: found.level || '未评级',
+                        score: found.level === 'AAA' ? 85 : found.level === 'AA' ? 75 : found.level === 'A' ? 65 : found.level === 'B' ? 50 : 30,
+                        legalPerson: found.legalPerson || '--', capital: '--',
+                        establishDate: found.year ? found.year + '-01-01' : '--',
+                        industry: found.industry || '--', district: found.district || '--',
+                        address: '武汉市' + (found.district || '') + '区',
+                        scope: found.desc || '--',
+                        penalties: [], judicial: [], honors: [],
+                        timeline: [{ date: '--', title: '暂无详细信用记录', desc: '', type: 'neutral' }]
+                    };
+                }
+            }
+            if (!detail) { alert('未找到该企业档案信息'); return; }
+            renderEnterpriseDetail(detail);
+            navigateTo('enterprise-detail');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openSearchDetail(name, code) {
+            openEnterpriseDetail(name, code);
+        }
+
+        function renderEnterpriseDetail(d) {
+            var container = document.getElementById('entDetailContent');
+            if (!container) return;
+            var ratingClass = 'rating-' + (d.rating === '未评级' ? 'B' : d.rating);
+            var scorePercent = Math.min(d.score, 100);
+            var circumference = 2 * Math.PI * 42;
+            var offset = circumference - (scorePercent / 100) * circumference;
+            var ringClass = d.score >= 75 ? 'high' : d.score >= 50 ? 'medium' : 'low';
+            var penaltyCount = (d.penalties || []).length;
+            var judicialCount = (d.judicial || []).length;
+            var honorCount = (d.honors || []).length;
+
+            var html = '';
+            html += '<div class="ent-header-card">';
+            html += '<div class="ent-avatar ' + ratingClass + '">' + d.name.charAt(0) + '</div>';
+            html += '<div class="ent-info">';
+            html += '<div class="ent-name">' + d.name + '<span class="badge ' + (d.rating === 'AAA' || d.rating === 'AA' ? 'badge-success' : d.rating === 'C' ? 'badge-danger' : 'badge-warning') + '" style="font-size:13px;margin-left:8px;">' + d.rating + '</span></div>';
+            html += '<div class="ent-code">统一社会信用代码：' + d.code + '</div>';
+            html += '<div class="ent-meta-row">';
+            html += '<span><span class="meta-label">法定代表人</span> ' + d.legalPerson + '</span>';
+            html += '<span><span class="meta-label">注册资本</span> ' + d.capital + '</span>';
+            html += '<span><span class="meta-label">成立日期</span> ' + d.establishDate + '</span>';
+            html += '<span><span class="meta-label">所属行业</span> ' + d.industry + '</span>';
+            html += '<span><span class="meta-label">所在区域</span> ' + d.district + '</span>';
+            html += '</div></div>';
+            html += '<div class="ent-score-card">';
+            html += '<div class="ent-score-ring">';
+            html += '<svg width="100" height="100" viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill ' + ringClass + '" cx="50" cy="50" r="42" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '"/></svg>';
+            html += '<div class="ent-score-num">' + d.score + '</div></div>';
+            html += '<div class="ent-score-label">信用评分 / 100</div></div>';
+            html += '</div>';
+
+            html += '<div class="ent-detail-tabs">';
+            html += '<div class="ent-detail-tab active" onclick="switchEntTab(\'basic\', this)">基本信息</div>';
+            html += '<div class="ent-detail-tab" onclick="switchEntTab(\'penalty\', this)">行政处罚<span class="tab-badge">' + penaltyCount + '</span></div>';
+            html += '<div class="ent-detail-tab" onclick="switchEntTab(\'judicial\', this)">司法信息<span class="tab-badge">' + judicialCount + '</span></div>';
+            html += '<div class="ent-detail-tab" onclick="switchEntTab(\'honor\', this)">荣誉资质<span class="tab-badge">' + honorCount + '</span></div>';
+            html += '<div class="ent-detail-tab" onclick="switchEntTab(\'history\', this)">信用记录</div>';
+            html += '</div>';
+            html += '<div class="ent-detail-panel">';
+
+            html += '<div class="ent-detail-content active" id="entTab-basic">';
+            html += '<div class="ent-info-grid">';
+            html += '<div class="ent-info-item"><div class="info-label">企业名称</div><div class="info-value">' + d.name + '</div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">统一社会信用代码</div><div class="info-value" style="font-family:monospace;">' + d.code + '</div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">法定代表人</div><div class="info-value">' + d.legalPerson + '</div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">注册资本</div><div class="info-value">' + d.capital + '</div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">成立日期</div><div class="info-value">' + d.establishDate + '</div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">所属行业</div><div class="info-value">' + d.industry + '</div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">所在区域</div><div class="info-value">' + d.district + '</div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">信用等级</div><div class="info-value"><span class="badge ' + (d.rating === 'AAA' || d.rating === 'AA' ? 'badge-success' : 'badge-warning') + '">' + d.rating + '</span></div></div>';
+            html += '<div class="ent-info-item"><div class="info-label">注册地址</div><div class="info-value">' + (d.address || '--') + '</div></div>';
+            html += '<div class="ent-info-item" style="grid-column:1/-1;"><div class="info-label">经营范围</div><div class="info-value" style="font-weight:400;line-height:1.6;">' + d.scope + '</div></div>';
+            html += '</div></div>';
+
+            html += '<div class="ent-detail-content" id="entTab-penalty">';
+            if (penaltyCount === 0) {
+                html += '<div class="empty-section"><div class="empty-icon">✅</div><p>暂无行政处罚记录</p></div>';
+            } else {
+                html += '<table class="penalty-table"><thead><tr><th>处罚日期</th><th>处罚机关</th><th>处罚事由</th><th>处罚结果</th><th>状态</th></tr></thead><tbody>';
+                d.penalties.forEach(function(p) {
+                    html += '<tr><td>' + p.date + '</td><td>' + p.org + '</td><td>' + p.reason + '</td><td>' + p.result + '</td><td><span class="badge ' + (p.status === '已处理' ? 'badge-success' : 'badge-warning') + '">' + p.status + '</span></td></tr>';
+                });
+                html += '</tbody></table>';
+            }
+            html += '</div>';
+
+            html += '<div class="ent-detail-content" id="entTab-judicial">';
+            if (judicialCount === 0) {
+                html += '<div class="empty-section"><div class="empty-icon">✅</div><p>暂无涉诉司法记录</p></div>';
+            } else {
+                html += '<table class="penalty-table"><thead><tr><th>日期</th><th>案件类型</th><th>案号</th><th>审理法院</th><th>结果</th></tr></thead><tbody>';
+                d.judicial.forEach(function(j) {
+                    html += '<tr><td>' + j.date + '</td><td>' + j.type + '</td><td>' + j.caseNo + '</td><td>' + j.court + '</td><td>' + j.result + '</td></tr>';
+                });
+                html += '</tbody></table>';
+            }
+            html += '</div>';
+
+            html += '<div class="ent-detail-content" id="entTab-honor">';
+            if (honorCount === 0) {
+                html += '<div class="empty-section"><div class="empty-icon">\u{1F3C6}</div><p>暂无荣誉资质记录</p></div>';
+            } else {
+                html += '<div class="honor-cards">';
+                d.honors.forEach(function(h) {
+                    html += '<div class="honor-card"><div class="honor-icon">\u{1F396}</div><div class="honor-info"><div class="honor-name">' + h.name + '</div><div class="honor-from">' + h.from + '</div><div class="honor-date">' + h.date + '</div></div></div>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+
+            html += '<div class="ent-detail-content" id="entTab-history">';
+            if (d.timeline.length === 0) {
+                html += '<div class="empty-section"><div class="empty-icon">\u{1F4CB}</div><p>暂无信用记录</p></div>';
+            } else {
+                html += '<div class="credit-timeline">';
+                d.timeline.forEach(function(t) {
+                    html += '<div class="tl-item ' + t.type + '"><div class="tl-date">' + t.date + '</div><div class="tl-title">' + t.title + '</div><div class="tl-desc">' + t.desc + '</div></div>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function switchEntTab(tabId, el) {
+            document.querySelectorAll('.ent-detail-tab').forEach(function(t) { t.classList.remove('active'); });
+            if (el) el.classList.add('active');
+            document.querySelectorAll('.ent-detail-content').forEach(function(c) { c.classList.remove('active'); });
+            var tab = document.getElementById('entTab-' + tabId);
+            if (tab) tab.classList.add('active');
+        }
+
+        // 高级搜索
+        function toggleAdvancedSearch() {
+            var panel = document.getElementById('advSearchPanel');
+            var toggle = document.getElementById('advSearchToggle');
+            panel.classList.toggle('show');
+            toggle.classList.toggle('open');
+        }
+
+        function resetAdvancedSearch() {
+            document.getElementById('advIndustry').value = '';
+            document.getElementById('advDistrict').value = '';
+            document.getElementById('advLevel').value = '';
+            document.getElementById('advYear').value = '';
+            performSearch();
+        }
+
+        function applyAdvancedSearch() {
+            var keyword = document.getElementById('searchPageInput').value.trim();
+            var filters = {
+                type: document.getElementById('searchPageType').value,
+                industry: document.getElementById('advIndustry').value,
+                district: document.getElementById('advDistrict').value,
+                level: document.getElementById('advLevel').value
+            };
+            var results = searchData(keyword, filters);
+            renderSearchResults(results, keyword);
+        }
+
+        // ========== 搜索事件绑定 ==========
+        (function initSearchEvents() {
+            var searchInput = document.getElementById('searchInput');
+            var searchBtn = document.getElementById('searchBtn');
+            var ac = document.getElementById('searchAutocomplete');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    renderAutocomplete();
+                });
+                searchInput.addEventListener('focus', function() {
+                    renderAutocomplete();
+                });
+                searchInput.addEventListener('keydown', function(e) {
+                    var items = ac.querySelectorAll('.search-ac-item');
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        acActiveIndex = Math.min(acActiveIndex + 1, items.length - 1);
+                        updateAcActive(items);
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        acActiveIndex = Math.max(acActiveIndex - 1, 0);
+                        updateAcActive(items);
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (acActiveIndex >= 0 && items[acActiveIndex]) {
+                            selectAcItem(items[acActiveIndex]);
+                        } else {
+                            executeSearch();
+                        }
+                    } else if (e.key === 'Escape') {
+                        hideAutocomplete();
+                    }
+                });
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', function() {
+                    executeSearch();
+                });
+            }
+
+            // 搜索页内二次搜索
+            var searchPageInput = document.getElementById('searchPageInput');
+            var searchPageBtn = document.getElementById('searchPageBtn');
+            if (searchPageInput) {
+                searchPageInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') performSearch();
+                });
+            }
+            if (searchPageBtn) {
+                searchPageBtn.addEventListener('click', function() { performSearch(); });
+            }
+
+            // autocomplete 点击事件委托
+            if (ac) {
+                ac.addEventListener('click', function(e) {
+                    var item = e.target.closest('.search-ac-item');
+                    if (item) selectAcItem(item);
+                });
+                ac.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); // 防止点击下拉时输入框失去焦点
+                });
+            }
+
+            // 点击外部关闭autocomplete
+            document.addEventListener('click', function(e) {
+                var searchWrap = document.getElementById('headerSearch');
+                if (searchWrap && !searchWrap.contains(e.target)) {
+                    hideAutocomplete();
+                }
+            });
+        })();
+
+        function updateAcActive(items) {
+            items.forEach(function(item, i) {
+                if (i === acActiveIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
         // 初始化
         switchRole('R01');
         
