@@ -2154,6 +2154,114 @@
         .batch-file-item .file-status.high { color: var(--secondary); font-weight: 600; }
         .batch-file-item .file-status.medium { color: var(--warning); font-weight: 600; }
         .batch-file-item .file-status.low { color: #16a34a; }
+
+        /* 批量检查 - 文件清单表格 */
+        .batch-file-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .batch-file-table thead tr {
+            background: var(--gray-50);
+        }
+        .batch-file-table th {
+            padding: 9px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .batch-file-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+            color: var(--gray-700);
+        }
+        .batch-file-table tbody tr:last-child td { border-bottom: none; }
+        .batch-file-table tbody tr:hover { background: #fafafa; }
+        .batch-file-table .file-name-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .batch-file-table .risk-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .batch-file-table .risk-badge.pending { background:#f3f4f6; color:var(--gray-500); }
+        .batch-file-table .risk-badge.checking { background:#fef2f4; color:var(--primary); }
+        .batch-file-table .risk-badge.pass { background:#f0fdf4; color:#16a34a; }
+        .batch-file-table .risk-badge.high { background:#fef2f2; color:var(--secondary); }
+        .batch-file-table .risk-badge.medium { background:#fffbeb; color:#d97706; }
+        .batch-file-table .risk-badge.low { background:#f0fdf4; color:#16a34a; }
+        .batch-file-table .btn-view {
+            padding: 3px 12px;
+            border: 1px solid var(--primary);
+            background: #fff;
+            color: var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .batch-file-table .btn-view:hover { background: var(--primary); color: #fff; }
+        .batch-file-table .btn-view:disabled { border-color:var(--gray-300); color:var(--gray-400); cursor:default; }
+
+        /* 批量查看弹窗 - 文档内容 */
+        .batch-doc-preview {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            padding: 20px 24px;
+            line-height: 1.9;
+            font-size: 14px;
+            color: var(--gray-800);
+        }
+        .batch-doc-preview .highlight-high {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+        .batch-doc-preview .highlight-medium {
+            background: #fef9c3;
+            color: #92400e;
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+        .batch-doc-preview .highlight-low {
+            background: #dcfce7;
+            color: #14532d;
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+        .batch-risk-legend {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .batch-risk-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+        .batch-risk-legend-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
         
         /* 批量检查 - 进度条 */
         .batch-progress-wrap {
@@ -7092,9 +7200,9 @@
                                 <div class="batch-drop-zone" id="batchDropZone" onclick="document.getElementById('batchFileInput').click()">
                                     <div class="batch-drop-icon" style="font-size:48px;margin-bottom:12px;">&#128229;</div>
                                     <div class="batch-drop-text" style="font-size:15px;color:var(--gray-700);margin-bottom:6px;">拖拽文件到此处，或点击上传</div>
-                                    <div style="font-size:12px;color:var(--gray-500);">支持 TXT、DOCX、HTML 格式，单次最多上传 50 个文件</div>
+                                    <div style="font-size:12px;color:var(--gray-500);">支持 TXT、DOCX、HTML、PDF 格式，单次最多上传 50 个文件</div>
                                 </div>
-                                <input type="file" id="batchFileInput" multiple accept=".txt,.docx,.html" style="display:none;" onchange="handleBatchFiles(this.files)">
+                                <input type="file" id="batchFileInput" multiple accept=".txt,.docx,.html,.pdf" style="display:none;" onchange="handleBatchFiles(this.files)">
                                 
                                 <!-- 文件清单 -->
                                 <div id="batchFileList" style="display:none;">
@@ -7110,13 +7218,22 @@
                                         <div class="batch-progress-bar"><div class="batch-progress-fill" id="batchProgressFill"></div></div>
                                         <span class="batch-progress-text" id="batchProgressText">0%</span>
                                     </div>
-                                    <!-- 文件条目列表 -->
-                                    <div class="batch-file-items" id="batchFileItems"></div>
-                                </div>
-                                
-                                <!-- 继续添加提示 -->
-                                <div id="batchAddMore" style="display:none;text-align:center;margin-top:12px;">
-                                    <a href="#" onclick="document.getElementById('batchFileInput').click();return false" style="color:var(--primary);font-size:13px;">+ 继续添加文件</a>
+                                    <!-- 文件清单表格 -->
+                                    <div class="batch-file-items" id="batchFileItems">
+                                        <table class="batch-file-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>文件名称</th>
+                                                    <th>文件大小</th>
+                                                    <th>文件类型</th>
+                                                    <th>触发规则</th>
+                                                    <th>风险等级</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="batchFileTableBody"></tbody>
+                                        </table>
+                                    </div>
                                 </div>
                                 
                                 <h4 style="font-size:14px;font-weight:600;margin:24px 0 12px;">最近批量检查记录</h4>
@@ -8160,6 +8277,20 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeIdeologyReviewModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 批量检查 - 文件内容查看弹窗 ====== -->
+    <div class="modal-overlay" id="batchFileViewModal" style="display:none;">
+        <div class="modal" style="width:860px;max-height:85vh;display:flex;flex-direction:column;">
+            <div class="modal-header" style="flex-shrink:0;">
+                <h3 id="batchFileViewTitle">&#128269; 文件内容查看</h3>
+                <span class="modal-close" onclick="closeBatchFileViewModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="batchFileViewBody" style="flex:1;overflow-y:auto;min-height:0;"></div>
+            <div class="modal-footer" style="flex-shrink:0;">
+                <button class="btn btn-secondary" onclick="closeBatchFileViewModal()">关闭</button>
             </div>
         </div>
     </div>
@@ -11790,51 +11921,63 @@
             return (bytes / 1048576).toFixed(1) + ' MB';
         }
 
-        // 渲染文件清单
+        // 获取文件类型显示名
+        function getFileTypeName(ext) {
+            var map = { txt: 'TXT 文本', docx: 'Word 文档', html: 'HTML 网页', pdf: 'PDF 文档' };
+            return map[ext.toLowerCase()] || ext.toUpperCase();
+        }
+
+        // 获取触发规则描述（模拟）
+        function getTriggerRule(file) {
+            if (file.status === 'high') return '政治敏感词';
+            if (file.status === 'medium') return '违禁词汇';
+            if (file.status === 'low') return '语义风险';
+            return '—';
+        }
+
+        // 渲染文件清单（表格形式）
         function renderBatchFileList() {
-            var container = document.getElementById('batchFileItems');
+            var tbody = document.getElementById('batchFileTableBody');
             var countEl = document.getElementById('batchFileCount');
             var listWrap = document.getElementById('batchFileList');
             var dropZone = document.getElementById('batchDropZone');
-            var addMore = document.getElementById('batchAddMore');
 
             if (batchFiles.length === 0) {
                 listWrap.style.display = 'none';
-                addMore.style.display = 'none';
                 dropZone.style.display = '';
                 return;
             }
 
             listWrap.style.display = '';
-            addMore.style.display = '';
             dropZone.style.display = 'none';
             countEl.textContent = batchFiles.length;
 
             var html = '';
             for (var i = 0; i < batchFiles.length; i++) {
                 var f = batchFiles[i];
-                var icon = '&#128196;';
-                var ext = f.name.split('.').pop().toLowerCase();
-                if (ext === 'docx') icon = '&#128220;';
-                else if (ext === 'html') icon = '&#127760;';
-                else if (ext === 'txt') icon = '&#128221;';
+                var ext = f.name.split('.').pop();
+                var typeName = getFileTypeName(ext);
+                var triggerRule = getTriggerRule(f);
 
-                var statusClass = 'pending';
-                var statusText = '待检测';
-                if (f.status === 'checking') { statusClass = 'checking'; statusText = '检测中...'; }
-                else if (f.status === 'pass') { statusClass = 'pass'; statusText = '通过'; }
-                else if (f.status === 'high') { statusClass = 'high'; statusText = '高风险'; }
-                else if (f.status === 'medium') { statusClass = 'medium'; statusText = '中风险'; }
-                else if (f.status === 'low') { statusClass = 'low'; statusText = '低风险'; }
+                var badgeClass = f.status || 'pending';
+                var badgeTextMap = { pending: '待检测', checking: '检测中…', pass: '通过', high: '高风险', medium: '中风险', low: '低风险' };
+                var badgeText = badgeTextMap[f.status] || '待检测';
 
-                html += '<div class="batch-file-item">';
-                html += '<span class="file-icon">' + icon + '</span>';
-                html += '<span class="file-name" title="' + f.name + '">' + f.name + '</span>';
-                html += '<span class="file-size">' + formatFileSize(f.size) + '</span>';
-                html += '<span class="file-status ' + statusClass + '">' + statusText + '</span>';
-                html += '</div>';
+                var canView = (f.status && f.status !== 'pending' && f.status !== 'checking');
+                var viewBtn = canView
+                    ? '<button class="btn-view" onclick="openBatchFileView(' + i + ')">查看</button>'
+                    : '<button class="btn-view" disabled>查看</button>';
+
+                html += '<tr>';
+                html += '<td class="file-name-cell" title="' + f.name + '">' + f.name + '</td>';
+                html += '<td>' + formatFileSize(f.size) + '</td>';
+                html += '<td>' + typeName + '</td>';
+                html += '<td>' + triggerRule + '</td>';
+                html += '<td><span class="risk-badge ' + badgeClass + '">' + badgeText + '</span></td>';
+                html += '<td>' + viewBtn + '</td>';
+                html += '</tr>';
             }
-            container.innerHTML = html;
+            tbody.innerHTML = html;
         }
 
         // 添加文件
@@ -11905,18 +12048,21 @@
                 startBtn.style.cursor = 'pointer';
                 startBtn.textContent = '开始检测';
             }
+            // 取消/返回按钮 恢复为 "取消"
+            var cancelBtn = document.getElementById('btnCancelDetect');
+            if (cancelBtn) cancelBtn.textContent = '取消';
+
             var progressWrap = document.getElementById('batchProgressWrap');
             if (progressWrap) progressWrap.style.display = 'none';
             document.getElementById('batchProgressFill').style.width = '0%';
             document.getElementById('batchProgressText').textContent = '0%';
         }
 
-        // 取消检测
+        // 取消 / 返回（检测完成后变为"返回"，点击清空列表回到上传区）
         function cancelBatchDetect() {
             if (isDetecting) {
                 if (detectTimer) clearTimeout(detectTimer);
                 isDetecting = false;
-                // 将检测中的状态恢复
                 for (var i = 0; i < batchFiles.length; i++) {
                     if (batchFiles[i].status === 'checking') {
                         batchFiles[i].status = 'pending';
@@ -11938,6 +12084,9 @@
             startBtn.disabled = true;
             startBtn.style.opacity = '0.5';
             startBtn.style.cursor = 'not-allowed';
+
+            // 点击"开始检测"后隐藏"继续添加文件"入口（即拖拽区，本方案中上传区已隐藏，此处确保 input 不可再被调用）
+            // 无需额外处理，dropZone 在 renderBatchFileList 中已 display:none
 
             // 显示进度条
             var progressWrap = document.getElementById('batchProgressWrap');
@@ -11962,7 +12111,11 @@
                     progressText.textContent = '100%';
                     startBtn.textContent = '检测完成';
                     startBtn.style.opacity = '1';
-                    
+
+                    // "取消"按钮改为"返回"
+                    var cancelBtn = document.getElementById('btnCancelDetect');
+                    if (cancelBtn) cancelBtn.textContent = '返回';
+
                     // 生成批次编号
                     var now = new Date();
                     var batchId = 'BATCH-' + now.getFullYear() +
@@ -11976,7 +12129,7 @@
                         ('0' + now.getMinutes()).slice(-2);
 
                     // 添加到检测记录表
-                    var tbody = document.getElementById('batchRecordBody');
+                    var recordTbody = document.getElementById('batchRecordBody');
                     var row = document.createElement('tr');
                     row.innerHTML =
                         '<td>' + batchId + '</td>' +
@@ -11986,12 +12139,13 @@
                         '<td style="color:#16a34a;font-weight:600;">' + lowCount + '</td>' +
                         '<td>' + timeStr + '</td>' +
                         '<td><span class="badge badge-success">完成</span></td>';
-                    if (tbody.firstChild) {
-                        tbody.insertBefore(row, tbody.firstChild);
+                    if (recordTbody.firstChild) {
+                        recordTbody.insertBefore(row, recordTbody.firstChild);
                     } else {
-                        tbody.appendChild(row);
+                        recordTbody.appendChild(row);
                     }
 
+                    renderBatchFileList();
                     return;
                 }
 
@@ -12029,6 +12183,103 @@
 
             processNext();
         }
+
+        // ========== 批量检查 - 查看弹窗 ==========
+        // 模拟文档内容（含风险关键词）
+        var BATCH_MOCK_CONTENT = {
+            high: [
+                '本文件涉及重要政治议题，其中提到"颠覆政权"与"分裂国家"等内容，违反相关法律法规。',
+                '文档中多处出现"境外势力渗透"相关表述，构成高度政治敏感内容。',
+                '报告涉及"民族分裂主义"倾向性言论，存在严重意识形态风险。'
+            ],
+            medium: [
+                '本材料中含有"不当舆论引导"词汇，可能对社会造成一定负面影响。',
+                '文件中使用了"煽动性言论"相关表述，需进一步审查核实。'
+            ],
+            low: [
+                '文档中存在"轻微违禁词"，整体内容合规，建议修订后重新提交。',
+                '部分用语存在"语义歧义风险"，建议参考规范用语重新表述。'
+            ],
+            pass: [
+                '本文件经过全面检测，内容合规，未发现违规或风险内容。',
+                '文档内容符合意识形态安全规范，无需处理。'
+            ]
+        };
+
+        // 高亮规则词（模拟）
+        var RISK_KEYWORDS = {
+            high: ['颠覆政权', '分裂国家', '境外势力渗透', '民族分裂主义'],
+            medium: ['不当舆论引导', '煽动性言论'],
+            low: ['轻微违禁词', '语义歧义风险']
+        };
+
+        function openBatchFileView(idx) {
+            var f = batchFiles[idx];
+            if (!f || f.status === 'pending' || f.status === 'checking') return;
+
+            var modal = document.getElementById('batchFileViewModal');
+            var titleEl = document.getElementById('batchFileViewTitle');
+            var bodyEl = document.getElementById('batchFileViewBody');
+
+            titleEl.innerHTML = '&#128269; 文件内容查看 —— ' + f.name;
+
+            var status = f.status;
+            var contentArr = BATCH_MOCK_CONTENT[status] || BATCH_MOCK_CONTENT['pass'];
+            var rawContent = contentArr[Math.floor(Math.random() * contentArr.length)];
+
+            // 高亮处理
+            var highlightedContent = rawContent;
+            if (status === 'high' || status === 'medium' || status === 'low') {
+                var keywords = RISK_KEYWORDS[status] || [];
+                for (var k = 0; k < keywords.length; k++) {
+                    var kw = keywords[k];
+                    if (highlightedContent.indexOf(kw) !== -1) {
+                        highlightedContent = highlightedContent.split(kw).join(
+                            '<span class="highlight-' + status + '">' + kw + '</span>'
+                        );
+                    }
+                }
+            }
+
+            // 风险信息区
+            var riskInfo = '';
+            if (status !== 'pass') {
+                var riskLabelMap = { high: '高风险', medium: '中风险', low: '低风险' };
+                var riskColorMap = { high: 'var(--secondary)', medium: '#d97706', low: '#16a34a' };
+                var triggerRule = getTriggerRule(f);
+                riskInfo = '<div style="background:#fef2f4;border:1px solid #fecdd3;border-radius:6px;padding:12px 16px;margin-bottom:16px;">' +
+                    '<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">' +
+                    '<span style="font-size:13px;color:var(--gray-700);">风险等级：<strong style="color:' + riskColorMap[status] + ';">' + riskLabelMap[status] + '</strong></span>' +
+                    '<span style="font-size:13px;color:var(--gray-700);">触发规则：<strong>' + triggerRule + '</strong></span>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            // 图例
+            var legend = '';
+            if (status !== 'pass') {
+                legend = '<div class="batch-risk-legend" style="margin-bottom:12px;">' +
+                    '<span class="batch-risk-legend-item"><span class="batch-risk-legend-dot" style="background:#fee2e2;border:1px solid #fca5a5;"></span>高风险标注</span>' +
+                    '<span class="batch-risk-legend-item"><span class="batch-risk-legend-dot" style="background:#fef9c3;border:1px solid #fde68a;"></span>中风险标注</span>' +
+                    '<span class="batch-risk-legend-item"><span class="batch-risk-legend-dot" style="background:#dcfce7;border:1px solid #86efac;"></span>低风险标注</span>' +
+                    '</div>';
+            }
+
+            bodyEl.innerHTML =
+                riskInfo +
+                legend +
+                '<div class="batch-doc-preview">' + highlightedContent + '</div>';
+
+            modal.style.display = 'flex';
+        }
+
+        function closeBatchFileViewModal() {
+            document.getElementById('batchFileViewModal').style.display = 'none';
+        }
+
+        document.getElementById('batchFileViewModal').addEventListener('click', function(e) {
+            if (e.target === this) closeBatchFileViewModal();
+        });
     </script>
 </body>
 </html>
