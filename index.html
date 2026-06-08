@@ -8293,6 +8293,26 @@
         </div>
     </div>
     
+    <!-- ====== 驳回理由弹框 ====== -->
+    <div class="modal-overlay" id="rejectReasonModal">
+        <div class="modal" style="width:500px;">
+            <div class="modal-header">
+                <h3>&#128683; 驳回申请</h3>
+                <span class="modal-close" onclick="hideModal('rejectReasonModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">驳回理由 *</label>
+                    <textarea class="form-textarea" id="rejectReasonText" placeholder="请填写驳回的具体理由..." rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideModal('rejectReasonModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmRejectAppeal()" style="background:#dc2626;color:#fff;">确认驳回</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- ====== 历史拦截记录弹窗 ====== -->
     <div class="modal-overlay" id="historyBlockModal">
@@ -9234,9 +9254,50 @@
 
         // Mock 异议处理数据（L3/L4）
         const ucAppealManageData = [
-            { name: '武汉征信有限公司', code: '914201007646214565', contact: '张明华', phone: '13812345678', status: '待受理', time: '2026-05-25 09:00' },
-            { name: '武汉长江科技有限公司', code: '91420100MA4K123456', contact: '李伟强', phone: '13987654321', status: '待关闭', time: '2026-05-22 14:30' },
-            { name: '武汉东湖高新集团股份有限公司', code: '91420100MA4K123458', contact: '陈志远', phone: '13611223344', status: '已关闭', time: '2026-05-18 10:00' }
+            { 
+                id: 'A001', name: '武汉征信有限公司', code: '914201007646214565', contact: '张明华', phone: '13812345678', 
+                status: '待受理', time: '2026-05-25 09:00',
+                appName: '张明华', appEmail: 'zhangminghua@example.com', appPhone: '13812345678',
+                managerName: '张明华', managerId: '4201**********1234',
+                district: '江岸区', address: '武汉市江岸区建设大道700号',
+                description: '本企业在信用报告中显示有一笔行政处罚记录（处罚文号：武市监罚[2025]第123号），但该处罚已于2025年12月完成整改并缴纳罚款。根据信用修复相关规定，该记录应在公示期满后予以删除，但目前信用报告中仍显示该处罚信息，请求核实并予以更正。',
+                attachments: ['问题页截图.png', '正确信息截图.png'],
+                logs: [
+                    { status: '已提交', time: '2026-05-25 09:00', operator: '张明华' },
+                    { status: '待受理', time: '2026-05-25 09:00', operator: '系统' }
+                ]
+            },
+            { 
+                id: 'A002', name: '武汉长江科技有限公司', code: '91420100MA4K123456', contact: '李伟强', phone: '13987654321', 
+                status: '待关闭', time: '2026-05-22 14:30',
+                appName: '李伟强', appEmail: 'liweiqiang@example.com', appPhone: '13987654321',
+                managerName: '李伟强', managerId: '4201**********5678',
+                district: '洪山区', address: '武汉市洪山区珞喻路1037号',
+                description: '本企业统一社会信用代码在平台中显示的法人代表信息与实际工商登记不一致。我司已于2026年3月完成法人变更登记，新法人代表为李伟强，但平台仍显示原法人代表信息。请核实并更新相关信用信息。',
+                attachments: ['问题页截图.png', '工商变更证明.png'],
+                logs: [
+                    { status: '已提交', time: '2026-05-22 11:00', operator: '李伟强' },
+                    { status: '待受理', time: '2026-05-22 11:00', operator: '系统' },
+                    { status: '已受理', time: '2026-05-22 14:30', operator: '王工作人员' },
+                    { status: '待关闭', time: '2026-05-22 14:30', operator: '王工作人员' }
+                ]
+            },
+            { 
+                id: 'A003', name: '武汉东湖高新集团股份有限公司', code: '91420100MA4K123458', contact: '陈志远', phone: '13611223344', 
+                status: '已关闭', time: '2026-05-18 10:00',
+                appName: '陈志远', appEmail: 'chenzhiyuan@example.com', appPhone: '13611223344',
+                managerName: '陈志远', managerId: '4201**********9012',
+                district: '东湖高新区', address: '武汉市东湖高新区高新大道999号',
+                description: '本企业在2024年度信用评价中被评为A级，但平台显示为B级。经核实，我司2024年度无行政处罚记录，且按时完成年报公示，符合A级评价标准。请核实并更正信用评级信息。',
+                attachments: ['问题页截图.png', '2024年报公示截图.png'],
+                logs: [
+                    { status: '已提交', time: '2026-05-18 08:00', operator: '陈志远' },
+                    { status: '待受理', time: '2026-05-18 08:00', operator: '系统' },
+                    { status: '已受理', time: '2026-05-18 09:30', operator: '王工作人员' },
+                    { status: '待关闭', time: '2026-05-18 09:30', operator: '王工作人员' },
+                    { status: '已关闭', time: '2026-05-18 10:00', operator: '王工作人员', remark: '已核实并更正信用评级，企业反馈确认无误' }
+                ]
+            }
         ];
 
         function renderUcContent(subId) {
@@ -9884,17 +9945,203 @@
         function renderStaffAppealManage() {
             let html = `<div class="uc-content-panel"><div class="uc-panel-header">🔍 信用异议处理</div><div class="uc-panel-body">`;
             html += `<div class="uc-search-bar" style="margin-bottom:16px;"><input type="text" class="form-input" placeholder="企业名称/统一社会信用代码" style="width:220px;"><input type="date" class="form-input" style="width:140px;"><span>至</span><input type="date" class="form-input" style="width:140px;"><select class="form-select" style="width:110px;"><option>全部</option><option>待受理</option><option>待关闭</option><option>已关闭</option></select><button class="btn btn-primary">查询</button></div>`;
-            html += `<table class="uc-data-table"><thead><tr><th>企业名称</th><th>企业信用代码</th><th>联系人</th><th>联系电话</th><th>内容详情</th><th>状态</th><th>操作</th></tr></thead><tbody>`;
-            ucAppealManageData.forEach(function(r) {
+            html += `<table class="uc-data-table"><thead><tr><th>企业名称</th><th>企业信用代码</th><th>联系人</th><th>联系电话</th><th>状态</th><th>操作</th></tr></thead><tbody>`;
+            ucAppealManageData.forEach(function(r, idx) {
                 var sc = r.status === '待受理' ? 'warning' : (r.status === '待关闭' ? 'warning' : 'cancelled-status');
-                var ops = '';
-                if (r.status === '待受理') ops = '<a href="#" style="color:var(--primary);font-size:12px;">查看</a> | <a href="#" style="color:#dc2626;font-size:12px;">驳回</a>';
-                else if (r.status === '待关闭') ops = '<a href="#" style="color:var(--primary);font-size:12px;">查看</a> | <a href="#" style="color:var(--primary);font-size:12px;">关闭</a>';
-                else ops = '<a href="#" style="color:var(--primary);font-size:12px;">查看</a>';
-                html += `<tr><td>${r.name}</td><td>${r.code}</td><td>${r.contact}</td><td>${r.phone}</td><td><a href="#" style="color:var(--primary);font-size:12px;">查看详情</a></td><td><span class="status-badge ${sc}">${r.status}</span></td><td style="white-space:nowrap;">${ops}</td></tr>`;
+                var ops = '<a href="javascript:void(0)" style="color:var(--primary);font-size:12px;" onclick="showAppealDetail(' + idx + ')">查看</a>';
+                html += `<tr><td>${r.name}</td><td>${r.code}</td><td>${r.contact}</td><td>${r.phone}</td><td><span class="status-badge ${sc}">${r.status}</span></td><td style="white-space:nowrap;">${ops}</td></tr>`;
             });
             html += `</tbody></table></div></div>`;
             return html;
+        }
+        
+        // ====== 异议处理详情页 ======
+        let currentAppealIdx = null;
+        
+        function showAppealDetail(idx) {
+            currentAppealIdx = idx;
+            const r = ucAppealManageData[idx];
+            if (!r) return;
+            
+            var isL3 = (currentRole === 'R05');
+            var isReadOnly = !isL3; // L4/L5只读
+            
+            var statusLabel = r.status;
+            var statusColor = r.status === '待受理' ? '#eab308' : (r.status === '待关闭' ? '#eab308' : '#16a34a');
+            
+            var html = `<div class="uc-content-panel"><div class="uc-panel-header">🔍 异议处理详情 <span style="font-size:13px;font-weight:400;color:var(--gray-500);"> | 编号：${r.id}</span></div><div class="uc-panel-body">`;
+            
+            // 返回按钮
+            html += `<div style="margin-bottom:16px;"><a href="javascript:void(0)" style="color:var(--primary);font-size:14px;font-weight:500;" onclick="backToAppealList()">← 返回列表</a></div>`;
+            
+            // ========== 详情部分 ==========
+            html += renderAppealDetailSection(r);
+            
+            // ========== 操作部分 ==========
+            if (!isReadOnly) {
+                html += renderAppealActionSection(r, idx);
+            }
+            
+            // ========== 日志部分 ==========
+            html += renderAppealLogSection(r);
+            
+            html += `</div></div>`;
+            
+            document.getElementById('ucContent').innerHTML = html;
+        }
+        
+        function backToAppealList() {
+            currentAppealIdx = null;
+            const el = document.getElementById('ucContent');
+            if (el) el.innerHTML = renderStaffAppealManage();
+        }
+        
+        function renderAppealDetailSection(r) {
+            var html = `<div class="obj-form-section" style="margin-bottom:20px;"><h4>📋 申诉详情</h4>`;
+            
+            // 申请人信息
+            html += `<div style="margin-bottom:16px;"><strong style="font-size:13px;color:var(--gray-700);">（一）申请人信息</strong>`;
+            html += `<div class="uc-info-grid" style="margin-top:8px;">`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">申请人姓名</span><span class="uc-info-value">${r.appName || '-'}</span></div>`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">电子邮箱</span><span class="uc-info-value">${r.appEmail || '-'}</span></div>`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">联系方式</span><span class="uc-info-value">${r.appPhone || '-'}</span></div>`;
+            html += `</div></div>`;
+            
+            // 申诉信息
+            html += `<div style="margin-bottom:16px;"><strong style="font-size:13px;color:var(--gray-700);">（二）申诉信息</strong>`;
+            html += `<div class="uc-info-grid" style="margin-top:8px;">`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">企业名称</span><span class="uc-info-value">${r.name}</span></div>`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">企业经营代码</span><span class="uc-info-value">${r.code}</span></div>`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">负责人姓名</span><span class="uc-info-value">${r.managerName || '-'}</span></div>`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">负责人身份证号</span><span class="uc-info-value">${r.managerId || '-'}</span></div>`;
+            html += `</div></div>`;
+            
+            // 经营地址
+            html += `<div style="margin-bottom:16px;"><strong style="font-size:13px;color:var(--gray-700);">（三）经营地址</strong>`;
+            html += `<div class="uc-info-grid" style="margin-top:8px;">`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">行政区</span><span class="uc-info-value">${r.district || '-'}</span></div>`;
+            html += `<div class="uc-info-item"><span class="uc-info-label">详细地址</span><span class="uc-info-value">${r.address || '-'}</span></div>`;
+            html += `</div></div>`;
+            
+            // 申诉内容描述
+            html += `<div style="margin-bottom:16px;"><strong style="font-size:13px;color:var(--gray-700);">（四）申诉内容描述</strong>`;
+            html += `<div style="margin-top:8px;padding:12px;background:var(--gray-50);border-radius:6px;font-size:13px;color:var(--gray-700);line-height:1.8;">${r.description || '暂无描述'}</div></div>`;
+            
+            // 附件
+            html += `<div style="margin-bottom:8px;"><strong style="font-size:13px;color:var(--gray-700);">（五）附件</strong>`;
+            html += `<div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;">`;
+            if (r.attachments && r.attachments.length > 0) {
+                r.attachments.forEach(function(att) {
+                    var icon = att.includes('截图') || att.includes('.png') ? '📷' : '📎';
+                    html += `<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:6px;font-size:12px;color:var(--gray-600);">${icon} ${att}</div>`;
+                });
+            } else {
+                html += `<span style="font-size:12px;color:var(--gray-400);">暂无附件</span>`;
+            }
+            html += `</div></div>`;
+            
+            html += `</div>`;
+            return html;
+        }
+        
+        function renderAppealActionSection(r, idx) {
+            var html = `<div class="obj-form-section" style="margin-bottom:20px;background:#fef9e7;border:1px solid #facc15;border-radius:8px;padding:16px;"><h4 style="margin-bottom:12px;">⚡ 操作</h4>`;
+            
+            if (r.status === '待受理') {
+                html += `<div style="display:flex;gap:12px;align-items:center;">`;
+                html += `<button class="btn btn-primary" onclick="acceptAppeal(${idx})" style="background:#16a34a;">✅ 受理</button>`;
+                html += `<button class="btn btn-danger" onclick="openRejectModal(${idx})" style="background:#dc2626;color:#fff;">⛔ 驳回</button>`;
+                html += `</div>`;
+            } else if (r.status === '待关闭') {
+                html += `<div style="display:flex;gap:12px;align-items:center;">`;
+                html += `<button class="btn btn-primary" onclick="closeAppeal(${idx})" style="background:#16a34a;">✅ 关闭</button>`;
+                html += `<button class="btn btn-danger" onclick="openRejectModal(${idx})" style="background:#dc2626;color:#fff;">⛔ 驳回</button>`;
+                html += `</div>`;
+            }
+            
+            html += `</div>`;
+            return html;
+        }
+        
+        function renderAppealLogSection(r) {
+            var html = `<div class="obj-form-section"><h4>📝 操作日志</h4>`;
+            if (r.logs && r.logs.length > 0) {
+                html += `<div style="margin-top:12px;">`;
+                r.logs.forEach(function(log, i) {
+                    var isLatest = (i === r.logs.length - 1);
+                    var dotColor = '#16a34a';
+                    if (log.status === '已驳回') dotColor = '#dc2626';
+                    else if (log.status === '待受理' || log.status === '待关闭') dotColor = '#eab308';
+                    
+                    html += `<div style="display:flex;align-items:flex-start;gap:12px;${i < r.logs.length - 1 ? 'padding-bottom:16px;' : ''}">`;
+                    html += `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">`;
+                    html += `<div style="width:10px;height:10px;border-radius:50%;background:${dotColor};flex-shrink:0;margin-top:4px;"></div>`;
+                    if (i < r.logs.length - 1) {
+                        html += `<div style="width:2px;flex:1;background:var(--gray-200);margin-top:4px;min-height:24px;"></div>`;
+                    }
+                    html += `</div>`;
+                    html += `<div style="flex:1;">`;
+                    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">`;
+                    html += `<span style="font-weight:600;font-size:13px;color:${dotColor};">${log.status}</span>`;
+                    html += `<span style="font-size:12px;color:var(--gray-400);">${log.time}</span>`;
+                    html += `</div>`;
+                    html += `<div style="font-size:12px;color:var(--gray-600);">操作人：${log.operator}</div>`;
+                    if (log.remark) {
+                        html += `<div style="margin-top:4px;padding:6px 10px;background:var(--gray-50);border-radius:4px;font-size:12px;color:var(--gray-600);">备注：${log.remark}</div>`;
+                    }
+                    html += `</div>`;
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            } else {
+                html += `<p style="font-size:12px;color:var(--gray-400);margin-top:8px;">暂无操作日志</p>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+        
+        // ====== 操作处理函数 ======
+        function acceptAppeal(idx) {
+            var r = ucAppealManageData[idx];
+            if (!r || r.status !== '待受理') return;
+            var now = new Date();
+            var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            r.status = '待关闭';
+            r.logs.push({ status: '已受理', time: timeStr, operator: '王工作人员' });
+            r.logs.push({ status: '待关闭', time: timeStr, operator: '王工作人员' });
+            showAppealDetail(idx);
+        }
+        
+        function closeAppeal(idx) {
+            var r = ucAppealManageData[idx];
+            if (!r || r.status !== '待关闭') return;
+            var now = new Date();
+            var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            r.status = '已关闭';
+            r.logs.push({ status: '已关闭', time: timeStr, operator: '王工作人员', remark: '已核实并处理完毕' });
+            showAppealDetail(idx);
+        }
+        
+        function openRejectModal(idx) {
+            currentAppealIdx = idx;
+            document.getElementById('rejectReasonText').value = '';
+            document.getElementById('rejectReasonModal').style.display = 'flex';
+        }
+        
+        function confirmRejectAppeal() {
+            var reason = document.getElementById('rejectReasonText').value.trim();
+            if (!reason) { alert('请填写驳回理由！'); return; }
+            
+            var r = ucAppealManageData[currentAppealIdx];
+            if (!r) return;
+            
+            var now = new Date();
+            var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            r.status = '已关闭';
+            r.logs.push({ status: '已驳回', time: timeStr, operator: '王工作人员', remark: reason });
+            
+            document.getElementById('rejectReasonModal').style.display = 'none';
+            showAppealDetail(currentAppealIdx);
         }
 
         // ===== R07: 平台负责人 =====
@@ -9903,7 +10150,7 @@
                 case 'overview': return renderManagerOverview();
                 case 'news-manage': return renderNewsManage();
                 case 'special': return renderStaffSpecial();
-                case 'appeal-manage': return `<div class="uc-content-panel"><div class="uc-panel-header">🔍 信用异议处理</div><div class="uc-panel-body"><p style="font-size:14px;color:var(--gray-500);">您具有查看权限，操作需由平台工作人员执行。</p></div></div>`;
+                case 'appeal-manage': return renderStaffAppealManage();
                 case 'stats-manage': return renderStatsManage();
                 case 'user-manage': return renderUserManage('L3');
                 default: return '';
@@ -9944,7 +10191,7 @@
                 case 'overview': return `<div class="uc-content-panel"><div class="uc-panel-header">📋 工作概览</div><div class="uc-panel-body"><div class="uc-stat-row"><div class="uc-stat-item"><div class="uc-stat-num">99.8%</div><div class="uc-stat-label">系统可用率</div></div><div class="uc-stat-item"><div class="uc-stat-num">2,458</div><div class="uc-stat-label">今日请求量</div></div><div class="uc-stat-item"><div class="uc-stat-num">12ms</div><div class="uc-stat-label">平均响应时间</div></div></div><p style="font-size:13px;color:var(--gray-400);margin-top:16px;">待明确详细概览内容</p></div></div>`;
                 case 'news-manage': return renderNewsManage();
                 case 'special': return renderStaffSpecial();
-                case 'appeal-manage': return `<div class="uc-content-panel"><div class="uc-panel-header">🔍 信用异议处理</div><div class="uc-panel-body"><p style="font-size:14px;color:var(--gray-500);">您具有最高查看权限。</p></div></div>`;
+                case 'appeal-manage': return renderStaffAppealManage();
                 case 'stats-manage': return renderStatsManage();
                 case 'user-manage': return renderUserManage('L5');
                 default: return '';
@@ -11547,11 +11794,31 @@
             const managerId = document.getElementById('objManagerId').value.trim();
             const district = document.getElementById('objDistrict').value;
             const address = document.getElementById('objAddress').value.trim();
+            const description = document.getElementById('objDescription') ? document.getElementById('objDescription').value.trim() : '';
             
             if (!name || !email || !phone || !company || !code || !manager || !managerId || !district || !address) {
                 alert('请填写所有必填项！');
                 return;
             }
+            
+            // 生成新记录
+            var now = new Date();
+            var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            var newId = 'A' + String(ucAppealManageData.length + 1).padStart(3, '0');
+            
+            ucAppealManageData.unshift({
+                id: newId, name: company, code: code, contact: name, phone: phone,
+                status: '待受理', time: timeStr,
+                appName: name, appEmail: email, appPhone: phone,
+                managerName: manager, managerId: managerId,
+                district: district, address: address,
+                description: description || '（未填写描述）',
+                attachments: ['问题页截图.png', '正确信息截图.png'],
+                logs: [
+                    { status: '已提交', time: timeStr, operator: name },
+                    { status: '待受理', time: timeStr, operator: '系统' }
+                ]
+            });
             
             alert('异议申诉申请已提交！\n\n我们将尽快审核您的申请，请留意邮箱通知。');
             hideModal('objectionModal');
