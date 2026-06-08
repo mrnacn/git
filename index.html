@@ -7234,6 +7234,12 @@
                                             <tbody id="batchFileTableBody"></tbody>
                                         </table>
                                     </div>
+                                    <!-- 继续添加文件（添加文件后显示，开始检测后隐藏） -->
+                                    <div id="batchAddMore" style="display:none;margin-top:10px;padding:8px 12px;border:1px dashed var(--gray-300);border-radius:6px;text-align:center;background:var(--gray-50);">
+                                        <a href="#" onclick="document.getElementById('batchFileInput').click();return false;" style="color:var(--primary);font-size:13px;text-decoration:none;">
+                                            &#43; 继续添加文件
+                                        </a>
+                                    </div>
                                 </div>
                                 
                                 <h4 style="font-size:14px;font-weight:600;margin:24px 0 12px;">最近批量检查记录</h4>
@@ -11941,16 +11947,21 @@
             var countEl = document.getElementById('batchFileCount');
             var listWrap = document.getElementById('batchFileList');
             var dropZone = document.getElementById('batchDropZone');
+            var addMore = document.getElementById('batchAddMore');
 
             if (batchFiles.length === 0) {
                 listWrap.style.display = 'none';
                 dropZone.style.display = '';
+                if (addMore) addMore.style.display = 'none';
                 return;
             }
 
             listWrap.style.display = '';
             dropZone.style.display = 'none';
             countEl.textContent = batchFiles.length;
+
+            // 继续添加文件：仅在未开始检测时显示
+            if (addMore) addMore.style.display = isDetecting ? 'none' : '';
 
             var html = '';
             for (var i = 0; i < batchFiles.length; i++) {
@@ -12056,6 +12067,10 @@
             if (progressWrap) progressWrap.style.display = 'none';
             document.getElementById('batchProgressFill').style.width = '0%';
             document.getElementById('batchProgressText').textContent = '0%';
+
+            // 若还有文件，重新显示"继续添加文件"
+            var addMore = document.getElementById('batchAddMore');
+            if (addMore) addMore.style.display = batchFiles.length > 0 ? '' : 'none';
         }
 
         // 取消 / 返回（检测完成后变为"返回"，点击清空列表回到上传区）
@@ -12087,6 +12102,8 @@
 
             // 点击"开始检测"后隐藏"继续添加文件"入口（即拖拽区，本方案中上传区已隐藏，此处确保 input 不可再被调用）
             // 无需额外处理，dropZone 在 renderBatchFileList 中已 display:none
+            var addMore = document.getElementById('batchAddMore');
+            if (addMore) addMore.style.display = 'none';
 
             // 显示进度条
             var progressWrap = document.getElementById('batchProgressWrap');
