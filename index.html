@@ -2078,6 +2078,112 @@
         
         .audit-panel-body { padding: 20px; }
         
+        /* 批量检查 - 拖拽区 */
+        .batch-drop-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .batch-drop-zone.drag-over {
+            border-color: var(--primary);
+            background: #fef2f4;
+        }
+        .batch-drop-zone.has-files {
+            padding: 16px;
+        }
+        
+        /* 批量检查 - 文件清单 */
+        .batch-file-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .batch-file-list-header h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .batch-file-items {
+            max-height: 360px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+        }
+        .batch-file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            gap: 10px;
+        }
+        .batch-file-item:last-child { border-bottom: none; }
+        .batch-file-item .file-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .batch-file-item .file-name {
+            flex: 1;
+            color: var(--gray-800);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .batch-file-item .file-size {
+            color: var(--gray-500);
+            font-size: 12px;
+            flex-shrink: 0;
+            min-width: 60px;
+            text-align: right;
+        }
+        .batch-file-item .file-status {
+            flex-shrink: 0;
+            min-width: 72px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .batch-file-item .file-status.pending { color: var(--gray-500); }
+        .batch-file-item .file-status.checking { color: var(--primary); }
+        .batch-file-item .file-status.pass { color: #16a34a; }
+        .batch-file-item .file-status.high { color: var(--secondary); font-weight: 600; }
+        .batch-file-item .file-status.medium { color: var(--warning); font-weight: 600; }
+        .batch-file-item .file-status.low { color: #16a34a; }
+        
+        /* 批量检查 - 进度条 */
+        .batch-progress-wrap {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .batch-progress-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .batch-progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .batch-progress-text {
+            font-size: 12px;
+            color: var(--gray-600);
+            flex-shrink: 0;
+            min-width: 70px;
+            text-align: right;
+        }
+        
         /* 审查统计 */
         .audit-stats-row {
             display: grid;
@@ -6980,16 +7086,40 @@
                         <div class="audit-panel">
                             <div class="audit-panel-header">
                                 <div class="audit-panel-title">&#128260; 批量内容检查</div>
-                                <button class="btn btn-primary" style="padding:8px 16px;">开始检查</button>
                             </div>
                             <div class="audit-panel-body">
-                                <div style="border:2px dashed var(--gray-300);border-radius:8px;padding:40px;text-align:center;margin-bottom:20px;">
-                                    <div style="font-size:48px;margin-bottom:12px;">&#128229;</div>
-                                    <div style="font-size:15px;color:var(--gray-700);margin-bottom:6px;">拖拽文件到此处，或点击上传</div>
+                                <!-- 拖拽上传区域 -->
+                                <div class="batch-drop-zone" id="batchDropZone" onclick="document.getElementById('batchFileInput').click()">
+                                    <div class="batch-drop-icon" style="font-size:48px;margin-bottom:12px;">&#128229;</div>
+                                    <div class="batch-drop-text" style="font-size:15px;color:var(--gray-700);margin-bottom:6px;">拖拽文件到此处，或点击上传</div>
                                     <div style="font-size:12px;color:var(--gray-500);">支持 TXT、DOCX、HTML 格式，单次最多上传 50 个文件</div>
                                 </div>
+                                <input type="file" id="batchFileInput" multiple accept=".txt,.docx,.html" style="display:none;" onchange="handleBatchFiles(this.files)">
                                 
-                                <h4 style="font-size:14px;font-weight:600;margin-bottom:12px;">最近批量检查记录</h4>
+                                <!-- 文件清单 -->
+                                <div id="batchFileList" style="display:none;">
+                                    <div class="batch-file-list-header">
+                                        <h4>文件清单（<span id="batchFileCount">0</span>）</h4>
+                                        <div style="display:flex;gap:8px;">
+                                            <button class="btn btn-primary" id="btnStartDetect" style="padding:7px 20px;" onclick="startBatchDetect()">开始检测</button>
+                                            <button id="btnCancelDetect" style="padding:7px 20px;border:1px solid var(--gray-300);background:#fff;color:var(--gray-700);border-radius:6px;cursor:pointer;font-size:13px;" onclick="cancelBatchDetect()">取消</button>
+                                        </div>
+                                    </div>
+                                    <!-- 进度条 -->
+                                    <div class="batch-progress-wrap" id="batchProgressWrap" style="display:none;">
+                                        <div class="batch-progress-bar"><div class="batch-progress-fill" id="batchProgressFill"></div></div>
+                                        <span class="batch-progress-text" id="batchProgressText">0%</span>
+                                    </div>
+                                    <!-- 文件条目列表 -->
+                                    <div class="batch-file-items" id="batchFileItems"></div>
+                                </div>
+                                
+                                <!-- 继续添加提示 -->
+                                <div id="batchAddMore" style="display:none;text-align:center;margin-top:12px;">
+                                    <a href="#" onclick="document.getElementById('batchFileInput').click();return false" style="color:var(--primary);font-size:13px;">+ 继续添加文件</a>
+                                </div>
+                                
+                                <h4 style="font-size:14px;font-weight:600;margin:24px 0 12px;">最近批量检查记录</h4>
                                 <table>
                                     <thead>
                                         <tr>
@@ -7002,7 +7132,7 @@
                                             <th>状态</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="batchRecordBody">
                                         <tr>
                                             <td>BATCH-20260521-001</td>
                                             <td>32</td>
@@ -11647,6 +11777,258 @@
         document.getElementById('verifyResultOverlay').addEventListener('click', function(e) {
             if (e.target === this) hideVerifyResult();
         });
+
+        // ==================== 批量检查 - 文件拖拽与检测 ====================
+        var batchFiles = [];
+        var isDetecting = false;
+        var detectTimer = null;
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // 渲染文件清单
+        function renderBatchFileList() {
+            var container = document.getElementById('batchFileItems');
+            var countEl = document.getElementById('batchFileCount');
+            var listWrap = document.getElementById('batchFileList');
+            var dropZone = document.getElementById('batchDropZone');
+            var addMore = document.getElementById('batchAddMore');
+
+            if (batchFiles.length === 0) {
+                listWrap.style.display = 'none';
+                addMore.style.display = 'none';
+                dropZone.style.display = '';
+                return;
+            }
+
+            listWrap.style.display = '';
+            addMore.style.display = '';
+            dropZone.style.display = 'none';
+            countEl.textContent = batchFiles.length;
+
+            var html = '';
+            for (var i = 0; i < batchFiles.length; i++) {
+                var f = batchFiles[i];
+                var icon = '&#128196;';
+                var ext = f.name.split('.').pop().toLowerCase();
+                if (ext === 'docx') icon = '&#128220;';
+                else if (ext === 'html') icon = '&#127760;';
+                else if (ext === 'txt') icon = '&#128221;';
+
+                var statusClass = 'pending';
+                var statusText = '待检测';
+                if (f.status === 'checking') { statusClass = 'checking'; statusText = '检测中...'; }
+                else if (f.status === 'pass') { statusClass = 'pass'; statusText = '通过'; }
+                else if (f.status === 'high') { statusClass = 'high'; statusText = '高风险'; }
+                else if (f.status === 'medium') { statusClass = 'medium'; statusText = '中风险'; }
+                else if (f.status === 'low') { statusClass = 'low'; statusText = '低风险'; }
+
+                html += '<div class="batch-file-item">';
+                html += '<span class="file-icon">' + icon + '</span>';
+                html += '<span class="file-name" title="' + f.name + '">' + f.name + '</span>';
+                html += '<span class="file-size">' + formatFileSize(f.size) + '</span>';
+                html += '<span class="file-status ' + statusClass + '">' + statusText + '</span>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        // 添加文件
+        function addBatchFiles(fileList) {
+            if (!fileList || fileList.length === 0) return;
+            for (var i = 0; i < fileList.length; i++) {
+                if (batchFiles.length >= 50) break;
+                // 去重
+                var exists = false;
+                for (var j = 0; j < batchFiles.length; j++) {
+                    if (batchFiles[j].name === fileList[i].name && batchFiles[j].size === fileList[i].size) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    batchFiles.push({
+                        name: fileList[i].name,
+                        size: fileList[i].size,
+                        status: 'pending'
+                    });
+                }
+            }
+            renderBatchFileList();
+            // 重置按钮状态
+            resetDetectButtons();
+        }
+
+        // 文件input变化
+        function handleBatchFiles(fileList) {
+            addBatchFiles(fileList);
+            document.getElementById('batchFileInput').value = '';
+        }
+
+        // 拖拽事件
+        (function() {
+            var dropZone = document.getElementById('batchDropZone');
+            if (!dropZone) return;
+
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('drag-over');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    addBatchFiles(e.dataTransfer.files);
+                }
+            });
+        })();
+
+        // 重置检测按钮
+        function resetDetectButtons() {
+            var startBtn = document.getElementById('btnStartDetect');
+            if (startBtn) {
+                startBtn.disabled = false;
+                startBtn.style.opacity = '1';
+                startBtn.style.cursor = 'pointer';
+                startBtn.textContent = '开始检测';
+            }
+            var progressWrap = document.getElementById('batchProgressWrap');
+            if (progressWrap) progressWrap.style.display = 'none';
+            document.getElementById('batchProgressFill').style.width = '0%';
+            document.getElementById('batchProgressText').textContent = '0%';
+        }
+
+        // 取消检测
+        function cancelBatchDetect() {
+            if (isDetecting) {
+                if (detectTimer) clearTimeout(detectTimer);
+                isDetecting = false;
+                // 将检测中的状态恢复
+                for (var i = 0; i < batchFiles.length; i++) {
+                    if (batchFiles[i].status === 'checking') {
+                        batchFiles[i].status = 'pending';
+                    }
+                }
+            }
+            batchFiles = [];
+            renderBatchFileList();
+            resetDetectButtons();
+            document.getElementById('batchFileInput').value = '';
+        }
+
+        // 开始批量检测
+        function startBatchDetect() {
+            if (batchFiles.length === 0 || isDetecting) return;
+
+            isDetecting = true;
+            var startBtn = document.getElementById('btnStartDetect');
+            startBtn.disabled = true;
+            startBtn.style.opacity = '0.5';
+            startBtn.style.cursor = 'not-allowed';
+
+            // 显示进度条
+            var progressWrap = document.getElementById('batchProgressWrap');
+            progressWrap.style.display = 'flex';
+            var progressFill = document.getElementById('batchProgressFill');
+            var progressText = document.getElementById('batchProgressText');
+
+            // 重置所有文件状态为待检测
+            for (var i = 0; i < batchFiles.length; i++) {
+                batchFiles[i].status = 'pending';
+            }
+
+            var total = batchFiles.length;
+            var current = 0;
+            var highCount = 0, mediumCount = 0, lowCount = 0;
+
+            function processNext() {
+                if (current >= total) {
+                    // 全部完成
+                    isDetecting = false;
+                    progressFill.style.width = '100%';
+                    progressText.textContent = '100%';
+                    startBtn.textContent = '检测完成';
+                    startBtn.style.opacity = '1';
+                    
+                    // 生成批次编号
+                    var now = new Date();
+                    var batchId = 'BATCH-' + now.getFullYear() +
+                        ('0' + (now.getMonth() + 1)).slice(-2) +
+                        ('0' + now.getDate()).slice(-2) + '-' +
+                        ('00' + Math.floor(Math.random() * 999 + 1)).slice(-3);
+                    var timeStr = now.getFullYear() + '-' +
+                        ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+                        ('0' + now.getDate()).slice(-2) + ' ' +
+                        ('0' + now.getHours()).slice(-2) + ':' +
+                        ('0' + now.getMinutes()).slice(-2);
+
+                    // 添加到检测记录表
+                    var tbody = document.getElementById('batchRecordBody');
+                    var row = document.createElement('tr');
+                    row.innerHTML =
+                        '<td>' + batchId + '</td>' +
+                        '<td>' + total + '</td>' +
+                        '<td style="color:var(--secondary);font-weight:600;">' + highCount + '</td>' +
+                        '<td style="color:var(--warning);font-weight:600;">' + mediumCount + '</td>' +
+                        '<td style="color:#16a34a;font-weight:600;">' + lowCount + '</td>' +
+                        '<td>' + timeStr + '</td>' +
+                        '<td><span class="badge badge-success">完成</span></td>';
+                    if (tbody.firstChild) {
+                        tbody.insertBefore(row, tbody.firstChild);
+                    } else {
+                        tbody.appendChild(row);
+                    }
+
+                    return;
+                }
+
+                // 标记当前文件检测中
+                batchFiles[current].status = 'checking';
+                renderBatchFileList();
+
+                // 模拟检测延迟
+                var delay = 200 + Math.random() * 600;
+                detectTimer = setTimeout(function() {
+                    // 随机结果：70%通过，10%高风险，10%中风险，10%低风险
+                    var rand = Math.random();
+                    if (rand < 0.7) {
+                        batchFiles[current].status = 'pass';
+                    } else if (rand < 0.8) {
+                        batchFiles[current].status = 'high';
+                        highCount++;
+                    } else if (rand < 0.9) {
+                        batchFiles[current].status = 'medium';
+                        mediumCount++;
+                    } else {
+                        batchFiles[current].status = 'low';
+                        lowCount++;
+                    }
+
+                    current++;
+                    var pct = Math.round((current / total) * 100);
+                    progressFill.style.width = pct + '%';
+                    progressText.textContent = pct + '% (' + current + '/' + total + ')';
+
+                    renderBatchFileList();
+                    processNext();
+                }, delay);
+            }
+
+            processNext();
+        }
     </script>
 </body>
 </html>
