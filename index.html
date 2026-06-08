@@ -7635,7 +7635,22 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="audit-panel-body" style="padding:0;">
+                            <div class="audit-panel-body" style="padding:16px 0 0 0;">
+                                <!-- 筛选条件 -->
+                                <div class="review-filter-bar" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;padding:0 16px;">
+                                    <input type="text" class="form-input" id="reviewTitleFilter" placeholder="搜索标题..." style="width:160px;padding:6px 10px;font-size:12px;">
+                                    <input type="date" class="form-input" id="reviewStartDateFilter" title="开始日期" style="width:140px;padding:6px 10px;font-size:12px;">
+                                    <span style="font-size:12px;color:var(--gray-500);">至</span>
+                                    <input type="date" class="form-input" id="reviewEndDateFilter" title="结束日期" style="width:140px;padding:6px 10px;font-size:12px;">
+                                    <select class="form-select" id="reviewLevelFilter" style="width:110px;padding:6px 10px;font-size:12px;">
+                                        <option value="">全部风险</option>
+                                        <option value="high">高风险</option>
+                                        <option value="medium">中风险</option>
+                                        <option value="low">低风险</option>
+                                    </select>
+                                    <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" onclick="filterReviewList()">&#128269; 筛选</button>
+                                    <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="resetReviewFilters()">重置</button>
+                                </div>
                                 <table>
                                     <thead>
                                         <tr>
@@ -11054,6 +11069,16 @@
             const statusFilter = document.getElementById('reviewStatusFilter');
             const filterVal = statusFilter ? statusFilter.value : '';
             
+            // 新增筛选条件
+            const titleFilter = document.getElementById('reviewTitleFilter');
+            const titleVal = titleFilter ? titleFilter.value.trim().toLowerCase() : '';
+            const startDateFilter = document.getElementById('reviewStartDateFilter');
+            const startDateVal = startDateFilter ? startDateFilter.value : '';
+            const endDateFilter = document.getElementById('reviewEndDateFilter');
+            const endDateVal = endDateFilter ? endDateFilter.value : '';
+            const levelFilter = document.getElementById('reviewLevelFilter');
+            const levelVal = levelFilter ? levelFilter.value : '';
+            
             let records = [];
             if (currentRole === 'R05') {
                 // R05只能看自己提交的
@@ -11065,9 +11090,31 @@
                 records = [];
             }
             
-            // 筛选
+            // 筛选：处理状态
             if (filterVal) {
                 records = records.filter(r => r.status === filterVal);
+            }
+            
+            // 筛选：标题（模糊匹配）
+            if (titleVal) {
+                records = records.filter(r => r.title.toLowerCase().includes(titleVal));
+            }
+            
+            // 筛选：提交时间（日期范围）
+            if (startDateVal || endDateVal) {
+                records = records.filter(r => {
+                    // r.submitTime 格式: "2026-05-21 10:30"
+                    const datePart = r.submitTime.split(' ')[0]; // "2026-05-21"
+                    if (!datePart) return true;
+                    if (startDateVal && datePart < startDateVal) return false;
+                    if (endDateVal && datePart > endDateVal) return false;
+                    return true;
+                });
+            }
+            
+            // 筛选：风险等级
+            if (levelVal) {
+                records = records.filter(r => r.level === levelVal);
             }
             
             if (records.length === 0) {
@@ -11109,6 +11156,20 @@
         }
         
         function filterReviewList() {
+            renderReviewRecords();
+        }
+        
+        function resetReviewFilters() {
+            const titleFilter = document.getElementById('reviewTitleFilter');
+            if (titleFilter) titleFilter.value = '';
+            const startDateFilter = document.getElementById('reviewStartDateFilter');
+            if (startDateFilter) startDateFilter.value = '';
+            const endDateFilter = document.getElementById('reviewEndDateFilter');
+            if (endDateFilter) endDateFilter.value = '';
+            const levelFilter = document.getElementById('reviewLevelFilter');
+            if (levelFilter) levelFilter.value = '';
+            const statusFilter = document.getElementById('reviewStatusFilter');
+            if (statusFilter) statusFilter.value = '';
             renderReviewRecords();
         }
         
