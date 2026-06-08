@@ -17,10 +17,17 @@
             --primary-light: #fecdd3;
             --secondary: #dc2626;
             --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --info: #2563eb;
+            --info-light: #dbeafe;
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
+            --gray-150: #eaedf2;
             --gray-200: #e5e7eb;
             --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
             --gray-500: #6b7280;
             --gray-600: #4b5563;
             --gray-700: #374151;
@@ -147,14 +154,14 @@
             height: 44px;
             border: 2px solid var(--primary);
             border-radius: 8px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 2px 8px rgba(196,18,48,0.12);
             transition: box-shadow 0.2s;
         }
         .header-search:focus-within {
             box-shadow: 0 2px 14px rgba(196,18,48,0.25);
         }
-        
+
         .search-type {
             padding: 0 12px;
             background: #fef2f4;
@@ -167,13 +174,20 @@
             outline: none;
             min-width: 96px;
             appearance: auto;
+            border-radius: 6px 0 0 6px;
         }
         .search-type:hover {
             background: #fde4e8;
         }
-        
-        .search-input {
+
+        .search-input-wrap {
             flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 100%;
             padding: 0 14px;
             border: none;
             font-size: 14px;
@@ -184,7 +198,7 @@
         .search-input::placeholder {
             color: var(--gray-300);
         }
-        
+
         .search-btn {
             padding: 0 26px;
             background: var(--primary);
@@ -196,9 +210,231 @@
             letter-spacing: 0.5px;
             transition: background 0.2s;
             white-space: nowrap;
+            border-radius: 0 6px 0 0;
         }
-        
+
         .search-btn:hover { background: var(--primary-dark); }
+
+        /* ====== 搜索自动补全下拉 ====== */
+        .search-autocomplete {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: -2px;
+            right: -2px;
+            margin-top: 4px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.14);
+            z-index: 5000;
+            max-height: 380px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+        }
+        .search-autocomplete.show { display: block; animation: fadeIn 0.15s ease; }
+
+        .search-ac-section {
+            padding: 8px 14px;
+            font-size: 11px;
+            color: var(--gray-400);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-ac-section .ac-clear {
+            cursor: pointer;
+            color: var(--gray-400);
+            font-size: 11px;
+            font-weight: 400;
+        }
+        .search-ac-section .ac-clear:hover { color: var(--secondary); }
+
+        .search-ac-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .search-ac-item:hover,
+        .search-ac-item.active {
+            background: #fef2f4;
+            color: var(--primary);
+        }
+        .search-ac-item .ac-icon {
+            font-size: 13px;
+            color: var(--gray-400);
+            flex-shrink: 0;
+        }
+        .search-ac-item .ac-text { flex: 1; }
+        .search-ac-item .ac-type {
+            font-size: 11px;
+            color: var(--gray-400);
+            background: var(--gray-100);
+            padding: 1px 6px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .search-ac-item .ac-highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .search-ac-divider {
+            height: 1px;
+            background: var(--gray-100);
+            margin: 4px 0;
+        }
+
+        /* ====== 搜索结果页面 ====== */
+        .search-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 16px;
+        }
+        .search-result-count {
+            font-size: 15px;
+            color: var(--gray-700);
+        }
+        .search-result-count strong {
+            color: var(--primary);
+            font-size: 18px;
+        }
+        .search-result-sort {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+        .search-result-sort .sort-btn {
+            padding: 4px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            color: var(--gray-600);
+            font-size: 13px;
+            transition: all 0.15s;
+        }
+        .search-result-sort .sort-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .search-result-sort .sort-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .search-result-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .search-result-item {
+            background: white;
+            border-radius: 8px;
+            padding: 18px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.15s;
+            border-left: 3px solid transparent;
+        }
+        .search-result-item:hover {
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            transform: translateX(2px);
+            border-left-color: var(--primary);
+        }
+        .search-result-item .sr-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 6px;
+        }
+        .search-result-item .sr-code {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+        .search-result-item .sr-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .search-result-item .sr-desc {
+            font-size: 13px;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+        .search-highlight {
+            background: #fef08a;
+            color: var(--gray-900);
+            padding: 1px 2px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        .search-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-500);
+        }
+        .search-empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+        /* ====== 高级搜索面板 ====== */
+        .advanced-search-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary);
+            font-size: 13px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border: 1px dashed var(--gray-300);
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        .advanced-search-toggle:hover { border-color: var(--primary); background: #fef2f4; }
+        .advanced-search-toggle .adv-icon { font-size: 14px; transition: transform 0.3s; }
+        .advanced-search-toggle.open .adv-icon { transform: rotate(180deg); }
+
+        .advanced-search-panel {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        .advanced-search-panel.show { display: grid; animation: fadeIn 0.2s ease; }
+        .adv-field { display: flex; flex-direction: column; gap: 4px; }
+        .adv-field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+        .adv-field select,
+        .adv-field input {
+            padding: 8px 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--gray-700);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .adv-field select:focus,
+        .adv-field input:focus { border-color: var(--primary); }
+        .adv-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
         
         /* 主导航 - 粘性定位 */
         .main-nav {
@@ -5079,14 +5315,18 @@
                 </div>
             </div>
             
-            <div class="header-search">
-                <select class="search-type">
-                    <option>企业</option>
-                    <option>个人</option>
-                    <option>社会组织</option>
+            <div class="header-search" id="headerSearch">
+                <select class="search-type" id="searchType">
+                    <option value="all">全部</option>
+                    <option value="enterprise">企业</option>
+                    <option value="person">个人</option>
+                    <option value="org">社会组织</option>
                 </select>
-                <input type="text" class="search-input" placeholder="请输入企业名称、统一社会信用代码">
-                <button class="search-btn">查询</button>
+                <div class="search-input-wrap">
+                    <input type="text" class="search-input" id="searchInput" placeholder="请输入企业名称、统一社会信用代码" autocomplete="off">
+                    <div class="search-autocomplete" id="searchAutocomplete"></div>
+                </div>
+                <button class="search-btn" id="searchBtn">查询</button>
             </div>
         </div>
         
@@ -7642,6 +7882,52 @@
             </div>
         </div>
     </div>
+
+    <!-- ==================== 搜索结果页面 ==================== -->
+    <div id="page-search" class="page-section">
+        <div class="page-hero">
+            <div class="hero-inner">
+                <div class="breadcrumb">
+                    <a href="#" data-page="home">首页</a>
+                    <span class="separator">&rsaquo;</span>
+                    <span class="current">搜索结果</span>
+                </div>
+                <div class="page-hero-title">
+                    <h2>信用查询</h2>
+                    <span class="subtitle">查询企业、个人及社会组织信用信息</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div style="display:flex;gap:12px;margin-bottom:16px;">
+                <div style="flex:1;display:flex;gap:0;border:2px solid var(--primary);border-radius:8px;overflow:hidden;height:44px;">
+                    <select id="searchPageType" style="padding:0 12px;background:#fef2f4;border:none;border-right:2px solid var(--primary);font-size:14px;color:var(--primary);font-weight:500;outline:none;">
+                        <option value="all">全部</option>
+                        <option value="enterprise">企业</option>
+                        <option value="person">个人</option>
+                        <option value="org">社会组织</option>
+                    </select>
+                    <input type="text" id="searchPageInput" placeholder="请输入企业名称、统一社会信用代码或关键字" style="flex:1;padding:0 14px;border:none;font-size:14px;outline:none;color:var(--gray-800);" autocomplete="off">
+                </div>
+                <button class="btn btn-primary" id="searchPageBtn" style="height:44px;padding:0 28px;">搜索</button>
+            </div>
+            <div style="margin-bottom:16px;">
+                <span class="advanced-search-toggle" id="advSearchToggle" onclick="toggleAdvancedSearch()">
+                    <span class="adv-icon">⚙</span> 高级搜索
+                </span>
+                <div class="advanced-search-panel" id="advSearchPanel">
+                    <div class="adv-field"><label>所属行业</label><select id="advIndustry"><option value="">不限</option><option>制造业</option><option>建筑业</option><option>批发零售</option><option>信息技术</option><option>金融业</option><option>房地产</option><option>交通运输</option><option>住宿餐饮</option><option>教育</option><option>医疗卫生</option><option>文化体育</option><option>农林牧渔</option></select></div>
+                    <div class="adv-field"><label>所在区域</label><select id="advDistrict"><option value="">不限</option><option>武昌区</option><option>洪山区</option><option>江汉区</option><option>江岸区</option><option>东西湖区</option><option>硚口区</option><option>汉阳区</option><option>青山区</option><option>江夏区</option><option>黄陂区</option><option>蔡甸区</option><option>新洲区</option><option>汉南区</option></select></div>
+                    <div class="adv-field"><label>信用等级</label><select id="advLevel"><option value="">不限</option><option>AAA</option><option>AA</option><option>A</option><option>B</option><option>C</option><option>未评级</option></select></div>
+                    <div class="adv-field"><label>成立时间</label><select id="advYear"><option value="">不限</option><option>近1年</option><option>1-3年</option><option>3-5年</option><option>5-10年</option><option>10年以上</option></select></div>
+                    <div class="adv-actions"><button class="btn btn-secondary" onclick="resetAdvancedSearch()">重置</button><button class="btn btn-primary" onclick="applyAdvancedSearch()">应用筛选</button></div>
+                </div>
+            </div>
+            <div id="searchResultArea">
+                <div class="search-empty"><div class="empty-icon">🔍</div><p style="font-size:16px;font-weight:600;color:var(--gray-600);">请输入关键字进行查询</p><p style="font-size:13px;color:var(--gray-400);margin-top:4px;">支持企业名称、统一社会信用代码、法定代表人等</p></div>
+            </div>
+        </div>
+    </div>
     
     <!-- 底部 -->
     <footer class="footer">
@@ -8344,12 +8630,12 @@
         
         // 各角色可访问的功能模块
         const ROLE_PERMISSIONS = {
-            R01: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R02: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R03: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R05: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R07: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list'],
-            R08: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list']
+            R01: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'search'],
+            R02: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'search'],
+            R03: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'search'],
+            R05: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'search'],
+            R07: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'search'],
+            R08: ['home', 'dynamic', 'policy', 'publicity', 'service', 'statistics', 'audit', 'usercenter', 'notice-list', 'risk-list', 'policy-interpret-list', 'search']
         };
         
         let currentRole = 'R01';
@@ -9790,6 +10076,319 @@
         })();
         
         // 初始化
+
+        // ========== 搜索系统 ==========
+
+        // Mock搜索数据库
+        var MOCK_SEARCH_DATA = [
+            { name: '武汉征信有限公司', code: '914201007646214565', type: 'enterprise', industry: '信息技术', district: '武昌区', level: 'AAA', year: '2010', legalPerson: '张三', desc: '主营企业征信服务、信用评级、信用管理咨询等业务。' },
+            { name: '华工科技产业股份有限公司', code: '914201007646214566', type: 'enterprise', industry: '制造业', district: '洪山区', level: 'AAA', year: '2005', legalPerson: '李华', desc: '激光加工设备、光通信器件研发制造。' },
+            { name: '东风汽车集团有限公司', code: '914201007646214567', type: 'enterprise', industry: '制造业', district: '江岸区', level: 'AAA', year: '1998', legalPerson: '王强', desc: '汽车整车及零部件制造销售。' },
+            { name: '武汉光谷联合集团有限公司', code: '914201007646214568', type: 'enterprise', industry: '房地产', district: '洪山区', level: 'AA', year: '2012', legalPerson: '赵明', desc: '产业园区开发运营、科技企业孵化。' },
+            { name: '武汉商贸集团有限公司', code: '914201007646214569', type: 'enterprise', industry: '批发零售', district: '江汉区', level: 'AA', year: '2008', legalPerson: '刘洋', desc: '商业贸易、物流供应链管理。' },
+            { name: '中建三局集团有限公司', code: '914201007646214570', type: 'enterprise', industry: '建筑业', district: '武昌区', level: 'AAA', year: '2000', legalPerson: '陈刚', desc: '房屋建筑、基础设施投资建设。' },
+            { name: '武汉长江存储科技有限公司', code: '914201007646214571', type: 'enterprise', industry: '信息技术', district: '洪山区', level: 'AA', year: '2016', legalPerson: '周磊', desc: '集成电路芯片设计制造。' },
+            { name: '人福医药集团股份有限公司', code: '914201007646214572', type: 'enterprise', industry: '医疗卫生', district: '江夏区', level: 'A', year: '2003', legalPerson: '黄伟', desc: '药品研发、生产和销售。' },
+            { name: '武汉高德红外股份有限公司', code: '914201007646214573', type: 'enterprise', industry: '制造业', district: '洪山区', level: 'AAA', year: '2004', legalPerson: '马超', desc: '红外热成像产品研发制造。' },
+            { name: '湖北能源集团股份有限公司', code: '914201007646214574', type: 'enterprise', industry: '制造业', district: '江岸区', level: 'AA', year: '2001', legalPerson: '林峰', desc: '电力能源投资开发。' },
+            { name: '武汉当代科技产业集团', code: '914201007646214575', type: 'enterprise', industry: '信息技术', district: '武昌区', level: 'B', year: '2015', legalPerson: '孙浩', desc: '高新技术产业投资。' },
+            { name: '九州通医药集团股份有限公司', code: '914201007646214576', type: 'enterprise', industry: '医疗卫生', district: '汉阳区', level: 'AAA', year: '1999', legalPerson: '吴亮', desc: '医药流通、物流配送服务。' },
+            { name: '卓尔智联集团有限公司', code: '914201007646214577', type: 'enterprise', industry: '批发零售', district: '黄陂区', level: 'A', year: '2011', legalPerson: '郑斌', desc: 'B2B交易平台运营。' },
+            { name: '武汉锐科光纤激光技术股份有限公司', code: '914201007646214578', type: 'enterprise', industry: '制造业', district: '洪山区', level: 'AAA', year: '2007', legalPerson: '许峰', desc: '光纤激光器研发制造。' },
+            { name: '武汉天马微电子有限公司', code: '914201007646214579', type: 'enterprise', industry: '制造业', district: '江夏区', level: 'AA', year: '2013', legalPerson: '曹明', desc: '中小尺寸显示面板制造。' },
+            { name: '武汉凡谷电子技术股份有限公司', code: '914201007646214580', type: 'enterprise', industry: '信息技术', district: '洪山区', level: 'A', year: '2006', legalPerson: '何勇', desc: '射频器件研发制造。' },
+            { name: '武汉汉口银行股份有限公司', code: '914201007646214581', type: 'enterprise', industry: '金融业', district: '江汉区', level: 'AAA', year: '1997', legalPerson: '韩雪', desc: '商业银行综合金融服务。' },
+            { name: '武汉三特索道集团股份有限公司', code: '914201007646214582', type: 'enterprise', industry: '文化体育', district: '武昌区', level: 'B', year: '2014', legalPerson: '沈刚', desc: '旅游资源开发运营。' },
+            { name: '武汉XX科技有限公司', code: '914201007646214583', type: 'enterprise', industry: '信息技术', district: '东西湖区', level: 'C', year: '2018', legalPerson: '丁某', desc: '该公司存在重大税收违法行为。' },
+            { name: '湖北XX贸易有限公司', code: '914201007646214584', type: 'enterprise', industry: '批发零售', district: '硚口区', level: 'C', year: '2017', legalPerson: '杨某', desc: '该公司列入严重失信主体名单。' },
+            { name: '武汉XX建筑工程有限公司', code: '914201007646214585', type: 'enterprise', industry: '建筑业', district: '青山区', level: 'C', year: '2016', legalPerson: '吴某', desc: '存在安全生产失信行为。' },
+            { name: '武汉XX物流有限公司', code: '914201007646214586', type: 'enterprise', industry: '交通运输', district: '东西湖区', level: 'C', year: '2015', legalPerson: '张某', desc: '存在拖欠工资失信行为。' },
+            { name: '湖北XX投资管理有限公司', code: '914201007646214587', type: 'enterprise', industry: '金融业', district: '江汉区', level: 'C', year: '2014', legalPerson: '李某', desc: '失信被执行人。' },
+            { name: '武汉市XX教育培训学校', code: '914201007646214588', type: 'org', industry: '教育', district: '武昌区', level: 'A', year: '2009', legalPerson: '邱某', desc: '民办教育培训机构。' },
+            { name: '武汉市XX商会', code: '914201007646214589', type: 'org', industry: '文化体育', district: '江汉区', level: '未评级', year: '2006', legalPerson: '唐某', desc: '行业商会组织。' },
+            { name: '武汉市XX医院', code: '914201007646214590', type: 'org', industry: '医疗卫生', district: '汉阳区', level: 'AA', year: '2002', legalPerson: '冯某', desc: '民营综合医院。' },
+            { name: '张某某', code: '420106199001011234', type: 'person', industry: '', district: '武昌区', level: '优秀', year: '', legalPerson: '', desc: '个人信用分：850分（优秀），无失信记录。' },
+            { name: '李某某', code: '420103198505152345', type: 'person', industry: '', district: '江汉区', level: '良好', year: '', legalPerson: '', desc: '个人信用分：720分（良好），有1条轻微违约记录。' },
+            { name: '王某某', code: '420111199212013456', type: 'person', industry: '', district: '洪山区', level: '待修复', year: '', legalPerson: '', desc: '个人信用分：580分（待修复），存在失信被执行记录。' }
+        ];
+
+        var HOT_SEARCHES = ['武汉征信', '东风汽车', '华工科技', '严重失信', 'A级纳税人', '信用修复'];
+
+        function getSearchHistory() {
+            try { return JSON.parse(localStorage.getItem('xywh_search_history') || '[]'); } catch(e) { return []; }
+        }
+        function addSearchHistory(keyword) {
+            if (!keyword.trim()) return;
+            var history = getSearchHistory();
+            history = history.filter(function(h) { return h !== keyword; });
+            history.unshift(keyword);
+            if (history.length > 10) history = history.slice(0, 10);
+            localStorage.setItem('xywh_search_history', JSON.stringify(history));
+        }
+        function clearSearchHistory() {
+            localStorage.removeItem('xywh_search_history');
+            renderAutocomplete();
+        }
+
+        function searchData(keyword, filters) {
+            keyword = (keyword || '').toLowerCase().trim();
+            filters = filters || {};
+            return MOCK_SEARCH_DATA.filter(function(item) {
+                if (keyword) {
+                    var matchName = item.name.toLowerCase().indexOf(keyword) > -1;
+                    var matchCode = item.code.toLowerCase().indexOf(keyword) > -1;
+                    var matchPerson = (item.legalPerson || '').toLowerCase().indexOf(keyword) > -1;
+                    if (!matchName && !matchCode && !matchPerson) return false;
+                }
+                if (filters.type && filters.type !== 'all' && item.type !== filters.type) return false;
+                if (filters.industry && item.industry !== filters.industry) return false;
+                if (filters.district && item.district !== filters.district) return false;
+                if (filters.level && item.level !== filters.level) return false;
+                return true;
+            });
+        }
+
+        function highlightKeyword(text, keyword) {
+            if (!keyword || !text) return text;
+            var escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var re = new RegExp('(' + escaped + ')', 'gi');
+            return text.replace(re, '<span class="search-highlight">$1</span>');
+        }
+
+        var acActiveIndex = -1;
+
+        function renderAutocomplete() {
+            var ac = document.getElementById('searchAutocomplete');
+            var keyword = document.getElementById('searchInput').value.trim();
+            var html = '';
+            acActiveIndex = -1;
+
+            if (keyword) {
+                var results = searchData(keyword).slice(0, 6);
+                if (results.length > 0) {
+                    html += '<div class="search-ac-section">搜索建议</div>';
+                    results.forEach(function(item, i) {
+                        html += '<div class="search-ac-item" data-ac-idx="' + i + '" data-ac-name="' + item.name + '">';
+                        html += '<span class="ac-icon">' + (item.type === 'person' ? '👤' : item.type === 'org' ? '🏛' : '🏢') + '</span>';
+                        html += '<span class="ac-text">' + highlightKeyword(item.name, keyword) + '</span>';
+                        html += '<span class="ac-code" style="font-size:11px;color:var(--gray-400);">' + highlightKeyword(item.code, keyword) + '</span>';
+                        html += '<span class="ac-type">' + (item.type === 'enterprise' ? '企业' : item.type === 'person' ? '个人' : '组织') + '</span>';
+                        html += '</div>';
+                    });
+                } else {
+                    html += '<div class="search-ac-item" style="color:var(--gray-400);cursor:default;"><span class="ac-icon">🔍</span><span class="ac-text">未找到匹配结果</span></div>';
+                }
+                ac.classList.add('show');
+            } else {
+                var history = getSearchHistory();
+                if (history.length > 0) {
+                    html += '<div class="search-ac-section">最近搜索 <span class="ac-clear" onclick="event.stopPropagation();clearSearchHistory();">清除</span></div>';
+                    history.forEach(function(h, i) {
+                        html += '<div class="search-ac-item" data-ac-idx="' + i + '" data-ac-name="' + h + '">';
+                        html += '<span class="ac-icon">🕐</span>';
+                        html += '<span class="ac-text">' + h + '</span>';
+                        html += '</div>';
+                    });
+                    html += '<div class="search-ac-divider"></div>';
+                }
+                html += '<div class="search-ac-section">🔥 热门搜索</div>';
+                HOT_SEARCHES.forEach(function(h, i) {
+                    html += '<div class="search-ac-item" data-ac-idx="' + (getSearchHistory().length + i) + '" data-ac-name="' + h + '">';
+                    html += '<span class="ac-icon">🔥</span>';
+                    html += '<span class="ac-text">' + h + '</span>';
+                    html += '</div>';
+                });
+                ac.classList.add('show');
+            }
+            document.getElementById('searchAutocomplete').innerHTML = html;
+        }
+
+        function hideAutocomplete() {
+            var ac = document.getElementById('searchAutocomplete');
+            ac.classList.remove('show');
+            acActiveIndex = -1;
+        }
+
+        function selectAcItem(el) {
+            var name = el.getAttribute('data-ac-name');
+            if (name) {
+                document.getElementById('searchInput').value = name;
+                hideAutocomplete();
+                executeSearch();
+            }
+        }
+
+        function executeSearch() {
+            var keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) return;
+            addSearchHistory(keyword);
+            hideAutocomplete();
+            document.getElementById('searchPageInput').value = keyword;
+            document.getElementById('searchPageType').value = document.getElementById('searchType').value;
+            navigateTo('search');
+            performSearch();
+        }
+
+        function performSearch() {
+            var keyword = document.getElementById('searchPageInput').value.trim();
+            var type = document.getElementById('searchPageType').value;
+            var filters = { type: type };
+            var results = searchData(keyword, filters);
+            renderSearchResults(results, keyword);
+        }
+
+        function renderSearchResults(results, keyword) {
+            var area = document.getElementById('searchResultArea');
+            if (!results || results.length === 0) {
+                area.innerHTML = '<div class="search-empty"><div class="empty-icon">😔</div><p style="font-size:16px;font-weight:600;color:var(--gray-600);">未找到相关结果</p><p style="font-size:13px;color:var(--gray-400);margin-top:4px;">请尝试更换关键词或调整筛选条件</p></div>';
+                return;
+            }
+            var html = '<div class="search-result-header">';
+            html += '<span class="search-result-count">共找到 <strong>' + results.length + '</strong> 条结果</span>';
+            html += '<div class="search-result-sort"><span>排序：</span>';
+            html += '<button class="sort-btn active" onclick="sortAndRender(\'default\')">默认</button>';
+            html += '<button class="sort-btn" onclick="sortAndRender(\'level\')">信用等级</button>';
+            html += '<button class="sort-btn" onclick="sortAndRender(\'time\')">成立时间</button>';
+            html += '</div></div>';
+            html += '<div class="search-result-list">';
+            results.forEach(function(item) {
+                var levelClass = '';
+                if (item.level === 'C') levelClass = 'badge-danger';
+                else if (item.level === 'AAA' || item.level === 'AA' || item.level === '优秀') levelClass = 'badge-success';
+                else if (item.level === 'B' || item.level === '待修复') levelClass = 'badge-warning';
+                html += '<div class="search-result-item" onclick="openSearchDetail(\'' + item.name.replace(/'/g, "\\'") + '\', \'' + item.code + '\')">';
+                html += '<div class="sr-name">' + (item.type === 'person' ? '👤' : item.type === 'org' ? '🏛' : '🏢') + ' ' + highlightKeyword(item.name, keyword) + '</div>';
+                html += '<div class="sr-code">' + (item.type === 'person' ? '身份证号：' : '统一社会信用代码：') + highlightKeyword(item.code, keyword) + '</div>';
+                html += '<div class="sr-desc">' + highlightKeyword(item.desc, keyword) + '</div>';
+                html += '<div class="sr-tags">';
+                html += '<span class="tag" style="background:var(--gray-100);">' + (item.type === 'enterprise' ? '企业' : item.type === 'person' ? '个人' : '社会组织') + '</span>';
+                if (item.industry) html += '<span class="tag" style="background:var(--info-light);color:var(--info);">' + item.industry + '</span>';
+                if (item.district) html += '<span class="tag" style="background:var(--primary-light);color:var(--primary);">' + item.district + '</span>';
+                html += '<span class="badge ' + levelClass + '">' + item.level + '</span>';
+                html += '</div></div>';
+            });
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        function sortAndRender(mode) {
+            var keyword = document.getElementById('searchPageInput').value.trim();
+            var type = document.getElementById('searchPageType').value;
+            var results = searchData(keyword, { type: type });
+            if (mode === 'level') {
+                var order = { 'AAA': 1, 'AA': 2, 'A': 3, 'B': 4, 'C': 5, '优秀': 1, '良好': 2, '待修复': 3, '未评级': 6 };
+                results.sort(function(a, b) { return (order[a.level] || 9) - (order[b.level] || 9); });
+            } else if (mode === 'time') {
+                results.sort(function(a, b) { return parseInt(b.year || '0') - parseInt(a.year || '0'); });
+            }
+            renderSearchResults(results, keyword);
+        }
+
+        function openSearchDetail(name, code) {
+            alert('查看详情：' + name + '\n代码：' + code + '\n\n（企业信用档案详情页将在后续版本中实现）');
+        }
+
+        function toggleAdvancedSearch() {
+            var panel = document.getElementById('advSearchPanel');
+            var toggle = document.getElementById('advSearchToggle');
+            panel.classList.toggle('show');
+            toggle.classList.toggle('open');
+        }
+
+        function resetAdvancedSearch() {
+            document.getElementById('advIndustry').value = '';
+            document.getElementById('advDistrict').value = '';
+            document.getElementById('advLevel').value = '';
+            document.getElementById('advYear').value = '';
+            performSearch();
+        }
+
+        function applyAdvancedSearch() {
+            var keyword = document.getElementById('searchPageInput').value.trim();
+            var filters = {
+                type: document.getElementById('searchPageType').value,
+                industry: document.getElementById('advIndustry').value,
+                district: document.getElementById('advDistrict').value,
+                level: document.getElementById('advLevel').value
+            };
+            var results = searchData(keyword, filters);
+            renderSearchResults(results, keyword);
+        }
+
+        (function initSearchEvents() {
+            var searchInput = document.getElementById('searchInput');
+            var searchBtn = document.getElementById('searchBtn');
+            var ac = document.getElementById('searchAutocomplete');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() { renderAutocomplete(); });
+                searchInput.addEventListener('focus', function() { renderAutocomplete(); });
+                searchInput.addEventListener('keydown', function(e) {
+                    var items = ac.querySelectorAll('.search-ac-item');
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        acActiveIndex = Math.min(acActiveIndex + 1, items.length - 1);
+                        updateAcActive(items);
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        acActiveIndex = Math.max(acActiveIndex - 1, 0);
+                        updateAcActive(items);
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (acActiveIndex >= 0 && items[acActiveIndex]) {
+                            selectAcItem(items[acActiveIndex]);
+                        } else {
+                            executeSearch();
+                        }
+                    } else if (e.key === 'Escape') {
+                        hideAutocomplete();
+                    }
+                });
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', function() { executeSearch(); });
+            }
+
+            var searchPageInput = document.getElementById('searchPageInput');
+            var searchPageBtn = document.getElementById('searchPageBtn');
+            if (searchPageInput) {
+                searchPageInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') performSearch();
+                });
+            }
+            if (searchPageBtn) {
+                searchPageBtn.addEventListener('click', function() { performSearch(); });
+            }
+
+            if (ac) {
+                ac.addEventListener('click', function(e) {
+                    var item = e.target.closest('.search-ac-item');
+                    if (item) selectAcItem(item);
+                });
+                ac.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                var searchWrap = document.getElementById('headerSearch');
+                if (searchWrap && !searchWrap.contains(e.target)) {
+                    hideAutocomplete();
+                }
+            });
+        })();
+
+        function updateAcActive(items) {
+            items.forEach(function(item, i) {
+                if (i === acActiveIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
         switchRole('R01');
         
         // ========== 轮播图 ==========
