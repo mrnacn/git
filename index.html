@@ -7243,6 +7243,8 @@
                                 </div>
                                 
                                 <h4 style="font-size:14px;font-weight:600;margin:24px 0 12px;">最近批量检查记录</h4>
+                                <!-- 批次列表（主视图） -->
+                                <div id="batchRecordListView">
                                 <table>
                                     <thead>
                                         <tr>
@@ -7253,6 +7255,7 @@
                                             <th>低风险</th>
                                             <th>检查时间</th>
                                             <th>状态</th>
+                                            <th>操作</th>
                                         </tr>
                                     </thead>
                                     <tbody id="batchRecordBody">
@@ -7264,6 +7267,7 @@
                                             <td style="color:#16a34a;font-weight:600;">8</td>
                                             <td>2026-05-21 10:00</td>
                                             <td><span class="badge badge-success">完成</span></td>
+                                            <td><button class="batch-file-table btn-view" onclick="openBatchRecordDetail('BATCH-20260521-001','2026-05-21 10:00',32,0,3,8,null)">查看</button></td>
                                         </tr>
                                         <tr>
                                             <td>BATCH-20260520-003</td>
@@ -7273,6 +7277,7 @@
                                             <td style="color:#16a34a;font-weight:600;">12</td>
                                             <td>2026-05-20 16:30</td>
                                             <td><span class="badge badge-success">完成</span></td>
+                                            <td><button class="batch-file-table btn-view" onclick="openBatchRecordDetail('BATCH-20260520-003','2026-05-20 16:30',45,1,5,12,null)">查看</button></td>
                                         </tr>
                                         <tr>
                                             <td>BATCH-20260520-002</td>
@@ -7282,9 +7287,34 @@
                                             <td style="color:#16a34a;font-weight:600;">4</td>
                                             <td>2026-05-20 14:15</td>
                                             <td><span class="badge badge-success">完成</span></td>
+                                            <td><button class="batch-file-table btn-view" onclick="openBatchRecordDetail('BATCH-20260520-002','2026-05-20 14:15',18,0,1,4,null)">查看</button></td>
                                         </tr>
                                     </tbody>
                                 </table>
+                                </div>
+                                <!-- 批次详情视图 -->
+                                <div id="batchDetailView" style="display:none;">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                                        <button onclick="closeBatchRecordDetail()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;padding:0;display:flex;align-items:center;gap:4px;">&#8592; 返回记录列表</button>
+                                        <span id="batchDetailBatchId" style="font-size:12px;color:var(--gray-500);"></span>
+                                    </div>
+                                    <!-- 批次概要信息卡 -->
+                                    <div id="batchDetailSummary" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:6px;padding:12px 16px;margin-bottom:14px;display:flex;gap:32px;flex-wrap:wrap;"></div>
+                                    <!-- 文件明细表格 -->
+                                    <table class="batch-file-table">
+                                        <thead>
+                                            <tr>
+                                                <th>文件名称</th>
+                                                <th>文件大小</th>
+                                                <th>文件类型</th>
+                                                <th>触发规则</th>
+                                                <th>风险等级</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="batchDetailTableBody"></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -12148,6 +12178,12 @@
                     // 添加到检测记录表
                     var recordTbody = document.getElementById('batchRecordBody');
                     var row = document.createElement('tr');
+
+                    // 保存文件快照，供"查看"使用
+                    batchSnapshots[batchId] = batchFiles.map(function(f) {
+                        return { name: f.name, size: f.size, status: f.status };
+                    });
+
                     row.innerHTML =
                         '<td>' + batchId + '</td>' +
                         '<td>' + total + '</td>' +
@@ -12155,7 +12191,8 @@
                         '<td style="color:var(--warning);font-weight:600;">' + mediumCount + '</td>' +
                         '<td style="color:#16a34a;font-weight:600;">' + lowCount + '</td>' +
                         '<td>' + timeStr + '</td>' +
-                        '<td><span class="badge badge-success">完成</span></td>';
+                        '<td><span class="badge badge-success">完成</span></td>' +
+                        '<td><button class="batch-file-table btn-view" onclick="openBatchRecordDetail(\'' + batchId + '\',\'' + timeStr + '\',' + total + ',' + highCount + ',' + mediumCount + ',' + lowCount + ',\'' + batchId + '\')">查看</button></td>';
                     if (recordTbody.firstChild) {
                         recordTbody.insertBefore(row, recordTbody.firstChild);
                     } else {
@@ -12297,6 +12334,146 @@
         document.getElementById('batchFileViewModal').addEventListener('click', function(e) {
             if (e.target === this) closeBatchFileViewModal();
         });
+
+        // ========== 批次快照存储（每次检测完成后保存文件明细） ==========
+        var batchSnapshots = {}; // key: batchId -> [{ name, size, status }]
+
+        // ========== 批次详情 - 打开 ==========
+        // total/high/medium/low 为汇总数据，snapshot 为实际文件数组（null 时自动模拟）
+        var MOCK_FILE_NAMES = [
+            '关于加强意识形态工作的通知.docx', '2026年工作总结报告.pdf', '网站内容更新说明.txt',
+            '内部培训材料.docx', '宣传稿件初稿.html', '重要讲话学习心得.txt',
+            '对外发布信息审核表.pdf', '新闻稿件20260520.docx', '意识形态风险排查记录.xlsx',
+            '党员大会发言稿.docx', '政务公开信息汇总.pdf', '舆情监测周报.html',
+            '关于规范用语的通知.txt', '信息发布审批流程.pdf', '媒体采访答复材料.docx'
+        ];
+
+        function genMockFiles(total, high, medium, low) {
+            var files = [];
+            var pass = total - high - medium - low;
+            var pool = [];
+            for (var i = 0; i < high; i++) pool.push('high');
+            for (var i = 0; i < medium; i++) pool.push('medium');
+            for (var i = 0; i < low; i++) pool.push('low');
+            for (var i = 0; i < pass; i++) pool.push('pass');
+            // 打乱
+            for (var i = pool.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+            }
+            var exts = ['docx', 'pdf', 'txt', 'html'];
+            for (var i = 0; i < total; i++) {
+                var nameBase = MOCK_FILE_NAMES[i % MOCK_FILE_NAMES.length];
+                if (i >= MOCK_FILE_NAMES.length) nameBase = '文件_' + (i + 1) + '.' + exts[i % 4];
+                files.push({
+                    name: nameBase,
+                    size: Math.floor(20480 + Math.random() * 2000000),
+                    status: pool[i] || 'pass'
+                });
+            }
+            return files;
+        }
+
+        function openBatchRecordDetail(batchId, timeStr, total, high, medium, low, snapshotKey) {
+            // 获取文件明细（优先用真实快照，其次自动生成模拟数据）
+            var files = (snapshotKey && batchSnapshots[snapshotKey]) ? batchSnapshots[snapshotKey]
+                       : (batchSnapshots[batchId] ? batchSnapshots[batchId]
+                       : genMockFiles(total, high, medium, low));
+
+            // 渲染概要信息卡
+            var summaryEl = document.getElementById('batchDetailSummary');
+            summaryEl.innerHTML =
+                '<span style="font-size:13px;color:var(--gray-700);">文件数量：<strong>' + total + '</strong></span>' +
+                '<span style="font-size:13px;color:var(--gray-700);">高风险：<strong style="color:var(--secondary);">' + high + '</strong></span>' +
+                '<span style="font-size:13px;color:var(--gray-700);">中风险：<strong style="color:var(--warning);">' + medium + '</strong></span>' +
+                '<span style="font-size:13px;color:var(--gray-700);">低风险：<strong style="color:#16a34a;">' + low + '</strong></span>' +
+                '<span style="font-size:13px;color:var(--gray-700);">检查时间：<strong>' + timeStr + '</strong></span>' +
+                '<span style="font-size:13px;color:var(--gray-700);">状态：<span class="badge badge-success" style="font-size:12px;">完成</span></span>';
+
+            document.getElementById('batchDetailBatchId').textContent = '批次编号：' + batchId;
+
+            // 渲染文件明细表格
+            var tbody = document.getElementById('batchDetailTableBody');
+            var html = '';
+            for (var i = 0; i < files.length; i++) {
+                var f = files[i];
+                var ext = f.name.split('.').pop();
+                var typeName = getFileTypeName(ext);
+                var triggerRule = getTriggerRule(f);
+                var badgeTextMap = { pass: '通过', high: '高风险', medium: '中风险', low: '低风险', pending: '待检测' };
+                var badgeText = badgeTextMap[f.status] || '通过';
+                var badgeClass = f.status || 'pass';
+                var fCopy = f; // 闭包用
+                html += '<tr>';
+                html += '<td class="file-name-cell" title="' + f.name + '">' + f.name + '</td>';
+                html += '<td>' + formatFileSize(f.size) + '</td>';
+                html += '<td>' + typeName + '</td>';
+                html += '<td>' + triggerRule + '</td>';
+                html += '<td><span class="risk-badge ' + badgeClass + '">' + badgeText + '</span></td>';
+                html += '<td><button class="btn-view" onclick="openBatchFileViewObj(' + JSON.stringify(f).replace(/"/g, '&quot;') + ')">查看</button></td>';
+                html += '</tr>';
+            }
+            tbody.innerHTML = html;
+
+            // 切换视图
+            document.getElementById('batchRecordListView').style.display = 'none';
+            document.getElementById('batchDetailView').style.display = '';
+        }
+
+        function closeBatchRecordDetail() {
+            document.getElementById('batchDetailView').style.display = 'none';
+            document.getElementById('batchRecordListView').style.display = '';
+        }
+
+        // 详情页"查看"按钮 - 复用文件查看弹窗（接收对象而非索引）
+        function openBatchFileViewObj(f) {
+            var modal = document.getElementById('batchFileViewModal');
+            var titleEl = document.getElementById('batchFileViewTitle');
+            var bodyEl = document.getElementById('batchFileViewBody');
+
+            titleEl.innerHTML = '&#128269; 文件内容查看 —— ' + f.name;
+
+            var status = f.status || 'pass';
+            var contentArr = BATCH_MOCK_CONTENT[status] || BATCH_MOCK_CONTENT['pass'];
+            var rawContent = contentArr[Math.floor(Math.random() * contentArr.length)];
+
+            var highlightedContent = rawContent;
+            if (status === 'high' || status === 'medium' || status === 'low') {
+                var keywords = RISK_KEYWORDS[status] || [];
+                for (var k = 0; k < keywords.length; k++) {
+                    var kw = keywords[k];
+                    if (highlightedContent.indexOf(kw) !== -1) {
+                        highlightedContent = highlightedContent.split(kw).join(
+                            '<span class="highlight-' + status + '">' + kw + '</span>'
+                        );
+                    }
+                }
+            }
+
+            var riskInfo = '';
+            if (status !== 'pass') {
+                var riskLabelMap = { high: '高风险', medium: '中风险', low: '低风险' };
+                var riskColorMap = { high: 'var(--secondary)', medium: '#d97706', low: '#16a34a' };
+                var triggerRule = getTriggerRule(f);
+                riskInfo = '<div style="background:#fef2f4;border:1px solid #fecdd3;border-radius:6px;padding:12px 16px;margin-bottom:16px;">' +
+                    '<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">' +
+                    '<span style="font-size:13px;color:var(--gray-700);">风险等级：<strong style="color:' + riskColorMap[status] + ';">' + riskLabelMap[status] + '</strong></span>' +
+                    '<span style="font-size:13px;color:var(--gray-700);">触发规则：<strong>' + triggerRule + '</strong></span>' +
+                    '</div></div>';
+            }
+
+            var legend = '';
+            if (status !== 'pass') {
+                legend = '<div class="batch-risk-legend" style="margin-bottom:12px;">' +
+                    '<span class="batch-risk-legend-item"><span class="batch-risk-legend-dot" style="background:#fee2e2;border:1px solid #fca5a5;"></span>高风险标注</span>' +
+                    '<span class="batch-risk-legend-item"><span class="batch-risk-legend-dot" style="background:#fef9c3;border:1px solid #fde68a;"></span>中风险标注</span>' +
+                    '<span class="batch-risk-legend-item"><span class="batch-risk-legend-dot" style="background:#dcfce7;border:1px solid #86efac;"></span>低风险标注</span>' +
+                    '</div>';
+            }
+
+            bodyEl.innerHTML = riskInfo + legend + '<div class="batch-doc-preview">' + highlightedContent + '</div>';
+            modal.style.display = 'flex';
+        }
     </script>
 </body>
 </html>
