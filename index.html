@@ -2172,6 +2172,252 @@
             color: var(--gray-400);
         }
         
+        /* ====== 信用修复全流程 ====== */
+        .repair-container { display: flex; flex-direction: column; gap: 20px; }
+
+        .repair-guide-card {
+            background: white;
+            border-radius: 10px;
+            padding: 24px 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .repair-guide-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .repair-guide-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .repair-guide-item {
+            padding: 12px 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.8;
+            border-left: 3px solid var(--primary);
+        }
+        .repair-guide-item .guide-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .repair-steps-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 10px;
+            padding: 24px 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            gap: 0;
+        }
+        .repair-step-dot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        .repair-step-circle {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            border: 3px solid var(--gray-300);
+            background: white;
+            color: var(--gray-400);
+            transition: all 0.3s;
+        }
+        .repair-step-dot.active .repair-step-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 0 6px rgba(196,18,48,0.12);
+        }
+        .repair-step-dot.done .repair-step-circle {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+        .repair-step-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-400);
+            white-space: nowrap;
+        }
+        .repair-step-dot.active .repair-step-label { color: var(--primary); }
+        .repair-step-dot.done .repair-step-label { color: var(--success); }
+        .repair-step-line {
+            width: 60px; height: 2px;
+            background: var(--gray-300);
+            margin: 0 8px 24px;
+            transition: background 0.3s;
+        }
+        .repair-step-line.done { background: var(--success); }
+
+        .repair-form-card {
+            background: white;
+            border-radius: 10px;
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .repair-form-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 20px;
+        }
+        .repair-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .repair-form-row.full { grid-template-columns: 1fr; }
+        .repair-form-group { display: flex; flex-direction: column; gap: 6px; }
+        .repair-form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+        .repair-form-group label .required { color: var(--secondary); margin-left: 2px; }
+        .repair-form-group input,
+        .repair-form-group select,
+        .repair-form-group textarea {
+            padding: 10px 14px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--gray-800);
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.15s;
+        }
+        .repair-form-group input:focus,
+        .repair-form-group select:focus,
+        .repair-form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(196,18,48,0.08);
+        }
+        .repair-form-group textarea { min-height: 100px; resize: vertical; }
+        .repair-form-group .input-hint { font-size: 11px; color: var(--gray-400); }
+        .repair-form-group.error input,
+        .repair-form-group.error select,
+        .repair-form-group.error textarea { border-color: var(--secondary); }
+        .repair-form-group .error-msg {
+            font-size: 11px;
+            color: var(--secondary);
+            display: none;
+        }
+        .repair-form-group.error .error-msg { display: block; }
+
+        .repair-upload-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .repair-upload-zone:hover { border-color: var(--primary); background: #fef2f4; }
+        .repair-upload-zone.has-files { padding: 14px; }
+        .repair-file-list { display: flex; flex-direction: column; gap: 8px; }
+        .repair-file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--gray-50);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .repair-file-item .file-remove {
+            margin-left: auto;
+            cursor: pointer;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .repair-form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .repair-history-card {
+            background: white;
+            border-radius: 10px;
+            padding: 24px 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .repair-history-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+        }
+        .repair-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .repair-status.pending { background: #fef3c7; color: #92400e; }
+        .repair-status.processing { background: #dbeafe; color: #1e40af; }
+        .repair-status.done { background: #dcfce7; color: #15803d; }
+        .repair-status.rejected { background: #fee2e2; color: #991b1b; }
+
+        .repair-success {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .repair-success .success-icon {
+            width: 80px; height: 80px;
+            margin: 0 auto 20px;
+            background: var(--success-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        .repair-success h2 { font-size: 22px; color: var(--success); margin-bottom: 8px; }
+        .repair-success .case-id {
+            font-size: 15px;
+            color: var(--gray-600);
+            margin-bottom: 20px;
+        }
+        .repair-success .case-id strong {
+            font-family: 'Courier New', monospace;
+            color: var(--primary);
+            font-size: 18px;
+        }
         /* 数据统计页面 */
         .stats-detail-section {
             display: grid;
@@ -6874,11 +7120,11 @@
                     <div class="service-main-desc">根据不同应用场景，提供专用信用报告服务，如政府采购、招投标、融资贷款等场景，满足多样化需求。</div>
                     <a href="#" class="service-main-btn" data-role-show="L2" onclick="event.stopPropagation();">立即申请</a>
                 </div>
-                <div class="service-main-card" onclick="window.open('https://www.creditchina.gov.cn/xyxf/lczy/', '_blank')">
+                <div class="service-main-card" onclick="navigateToServiceSub('repair')">
                     <div class="service-main-icon">&#128295;</div>
                     <div class="service-main-title">信用修复申请</div>
                     <div class="service-main-desc">帮助失信企业进行信用修复，恢复企业信用，重塑企业形象。在线提交申请，全流程跟踪办理进度。</div>
-                    <a href="https://www.creditchina.gov.cn/xyxf/lczy/" target="_blank" class="service-main-btn" data-role-show="L2" onclick="event.stopPropagation();">立即申请</a>
+                    <a href="#" class="service-main-btn" data-role-show="L2" onclick="event.stopPropagation();navigateToServiceSub('repair')">立即申请</a>
                 </div>
                 <div class="service-main-card" onclick="navigateToServiceSub('objection')">
                     <div class="service-main-icon">&#128172;</div>
@@ -7118,6 +7364,16 @@
 
                         <!-- 身份核验/查询区域 -->
                         <div id="specialQueryArea" style="display:none;"></div>
+                    </div>
+                    <div style="text-align:center;margin-top:20px;">
+                        <button class="btn btn-secondary" onclick="backToServiceGrid()">← 返回服务列表</button>
+                    </div>
+                </div>
+
+                <!-- 信用修复 -->
+                <div id="service-repair" class="service-sub-content">
+                    <div class="repair-container" id="repairContainer">
+                        <!-- 由JS动态渲染 -->
                     </div>
                     <div style="text-align:center;margin-top:20px;">
                         <button class="btn btn-secondary" onclick="backToServiceGrid()">← 返回服务列表</button>
@@ -10883,6 +11139,210 @@
             });
         }
 
+
+        // ========== 信用修复全流程 ==========
+        var repairStep = 1;
+        var repairFiles = [];
+        var repairHistory = [
+            { id: 'XF20260520001', enterprise: '武汉征信有限公司', type: '行政处罚修复', submitTime: '2026-05-20 10:30', status: 'done', result: '已修复' },
+            { id: 'XF20260515002', enterprise: '武汉长江科技有限公司', type: '失信名单退出', submitTime: '2026-05-15 14:00', status: 'processing', result: '--' },
+            { id: 'XF20260428003', enterprise: '武汉XX科技有限公司', type: '行政处罚修复', submitTime: '2026-04-28 09:00', status: 'rejected', result: '材料不全' }
+        ];
+
+        function renderRepairFlow() {
+            var container = document.getElementById('repairContainer');
+            if (!container) return;
+            repairStep = 1;
+            var html = '';
+
+            // 修复指南
+            html += '<div class="repair-guide-card">';
+            html += '<h3>📋 信用修复指南</h3>';
+            html += '<div class="repair-guide-grid">';
+            html += '<div class="repair-guide-item"><span class="guide-num">1</span><strong>适用对象：</strong>已履行法定义务、纠正失信行为并消除不良影响的市场主体。</div>';
+            html += '<div class="repair-guide-item"><span class="guide-num">2</span><strong>修复范围：</strong>行政处罚记录、失信被执行人名单、企业经营异常名录等。</div>';
+            html += '<div class="repair-guide-item"><span class="guide-num">3</span><strong>所需材料：</strong>信用修复申请书、整改证明材料、身份证明文件、授权委托书（如有）。</div>';
+            html += '<div class="repair-guide-item"><span class="guide-num">4</span><strong>办理时限：</strong>自受理之日起5个工作日内完成审核，审核通过后3个工作日内完成修复。</div>';
+            html += '</div></div>';
+
+            // 步骤指示器
+            html += '<div class="repair-steps-bar">';
+            html += buildStepDot(1, '填写信息', '1');
+            html += '<div class="repair-step-line' + (repairStep > 1 ? ' done' : '') + '"></div>';
+            html += buildStepDot(2, '上传材料', '2');
+            html += '<div class="repair-step-line' + (repairStep > 2 ? ' done' : '') + '"></div>';
+            html += buildStepDot(3, '确认提交', '3');
+            html += '<div class="repair-step-line' + (repairStep > 3 ? ' done' : '') + '"></div>';
+            html += buildStepDot(4, '等待审核', '4');
+            html += '</div>';
+
+            // 表单区域
+            html += renderRepairForm();
+
+            // 修复历史
+            html += '<div class="repair-history-card">';
+            html += '<h3>📜 修复申请记录</h3>';
+            if (repairHistory.length === 0) {
+                html += '<div style="text-align:center;padding:30px;color:var(--gray-400);">暂无修复申请记录</div>';
+            } else {
+                html += '<table class="penalty-table"><thead><tr><th>申请编号</th><th>企业名称</th><th>修复类型</th><th>提交时间</th><th>状态</th><th>结果</th></tr></thead><tbody>';
+                repairHistory.forEach(function(r) {
+                    var sc = r.status === 'done' ? 'done' : r.status === 'processing' ? 'processing' : 'rejected';
+                    html += '<tr><td style="font-family:monospace;font-size:12px;">' + r.id + '</td><td>' + r.enterprise + '</td><td>' + r.type + '</td><td>' + r.submitTime + '</td>';
+                    html += '<td><span class="repair-status ' + sc + '">' + (r.status === 'done' ? '已完成' : r.status === 'processing' ? '处理中' : '已驳回') + '</span></td>';
+                    html += '<td>' + r.result + '</td></tr>';
+                });
+                html += '</tbody></table>';
+            }
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function buildStepDot(step, label, num) {
+            var cls = '';
+            if (repairStep === step) cls = ' active';
+            else if (repairStep > step) cls = ' done';
+            var icon = repairStep > step ? '✓' : num;
+            return '<div class="repair-step-dot' + cls + '"><div class="repair-step-circle">' + icon + '</div><div class="repair-step-label">' + label + '</div></div>';
+        }
+
+        function renderRepairForm() {
+            if (repairStep === 4) {
+                return '<div class="repair-success"><div class="success-icon">✅</div><h2>申请提交成功</h2><div class="case-id">您的申请编号：<strong>XF' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + String(Math.floor(Math.random() * 900 + 100)) + '</strong></div><p style="font-size:14px;color:var(--gray-500);">我们将在5个工作日内完成审核，请留意消息通知。</p><div style="margin-top:20px;"><button class="btn btn-primary" onclick="repairStep=1;renderRepairFlow()">提交新的申请</button></div></div>';
+            }
+
+            var html = '<div class="repair-form-card"><h3>' + (repairStep === 1 ? '第一步：填写修复信息' : repairStep === 2 ? '第二步：上传证明材料' : '第三步：确认提交信息') + '</h3>';
+
+            if (repairStep === 1) {
+                html += '<div class="repair-form-row"><div class="repair-form-group"><label>企业名称<span class="required">*</span></label><input type="text" id="repairEntName" placeholder="请输入企业名称"></div>';
+                html += '<div class="repair-form-group"><label>统一社会信用代码<span class="required">*</span></label><input type="text" id="repairEntCode" placeholder="18位统一社会信用代码"></div></div>';
+                html += '<div class="repair-form-row"><div class="repair-form-group"><label>修复类型<span class="required">*</span></label><select id="repairType"><option value="">请选择</option><option>行政处罚修复</option><option>失信名单退出</option><option>经营异常移出</option><option>其他</option></select></div>';
+                html += '<div class="repair-form-group"><label>联系人<span class="required">*</span></label><input type="text" id="repairContact" placeholder="请输入联系人姓名"></div></div>';
+                html += '<div class="repair-form-row"><div class="repair-form-group"><label>联系电话<span class="required">*</span></label><input type="text" id="repairPhone" placeholder="请输入联系电话"></div>';
+                html += '<div class="repair-form-group"><label>电子邮箱</label><input type="text" id="repairEmail" placeholder="请输入电子邮箱（选填）"></div></div>';
+                html += '<div class="repair-form-row full"><div class="repair-form-group"><label>修复理由说明<span class="required">*</span></label><textarea id="repairReason" placeholder="请详细说明失信行为已纠正的情况及修复理由（不少于50字）"></textarea><span class="input-hint">请提供充分的修复理由，以提高审核通过率</span></div></div>';
+            } else if (repairStep === 2) {
+                html += '<div class="repair-form-row full"><div class="repair-form-group"><label>上传证明材料<span class="required">*</span></label>';
+                html += '<div class="repair-upload-zone' + (repairFiles.length > 0 ? ' has-files' : '') + '" id="repairUploadZone" onclick="document.getElementById(\'repairFileInput\').click()">';
+                if (repairFiles.length === 0) {
+                    html += '<div style="font-size:32px;margin-bottom:8px;">📁</div><div style="font-size:14px;color:var(--gray-500);">点击上传或拖拽文件到此处</div><div style="font-size:11px;color:var(--gray-400);">支持 PDF、JPG、PNG、DOC，单个文件不超过10MB</div>';
+                } else {
+                    html += '<div class="repair-file-list">';
+                    repairFiles.forEach(function(f, i) {
+                        html += '<div class="repair-file-item"><span>📎</span><span>' + f.name + '</span><span style="font-size:11px;color:var(--gray-400);">(' + f.size + ')</span><span class="file-remove" onclick="event.stopPropagation();removeRepairFile(' + i + ')">✕</span></div>';
+                    });
+                    html += '</div><div style="font-size:12px;color:var(--gray-400);margin-top:8px;">点击继续添加文件</div>';
+                }
+                html += '</div>';
+                html += '<input type="file" id="repairFileInput" style="display:none;" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="addRepairFiles(event)">';
+                html += '</div></div>';
+                html += '<div class="repair-guide-grid"><div class="repair-guide-item"><strong>必需材料：</strong>信用修复申请书（加盖公章）、整改证明材料（如已缴纳罚款凭证、整改报告等）</div><div class="repair-guide-item"><strong>可选材料：</strong>授权委托书（非法定代表人办理时提供）、第三方出具的评价报告等</div></div>';
+            } else if (repairStep === 3) {
+                html += '<div style="background:var(--gray-50);border-radius:8px;padding:16px 20px;margin-bottom:16px;">';
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px;">';
+                html += '<div><span style="color:var(--gray-500);">企业名称：</span><strong>' + (document.getElementById('repairEntName') ? document.getElementById('repairEntName').value || '(未填写)' : '(未填写)') + '</strong></div>';
+                html += '<div><span style="color:var(--gray-500);">信用代码：</span><strong>' + (document.getElementById('repairEntCode') ? document.getElementById('repairEntCode').value || '(未填写)' : '(未填写)') + '</strong></div>';
+                html += '<div><span style="color:var(--gray-500);">修复类型：</span><strong>' + (document.getElementById('repairType') ? document.getElementById('repairType').value || '(未选择)' : '(未选择)') + '</strong></div>';
+                html += '<div><span style="color:var(--gray-500);">联系人：</span><strong>' + (document.getElementById('repairContact') ? document.getElementById('repairContact').value || '(未填写)' : '(未填写)') + '</strong></div>';
+                html += '</div>';
+                html += '<div style="margin-top:8px;"><span style="color:var(--gray-500);">上传文件：</span><strong>' + repairFiles.length + ' 个</strong></div>';
+                html += '</div>';
+                html += '<div style="font-size:13px;color:var(--gray-500);padding:12px;background:#fef2f4;border-radius:6px;">⚠️ 请仔细核对以上信息，提交后将进入审核流程。如需修改请返回上一步。</div>';
+            }
+
+            html += '<div class="repair-form-actions">';
+            if (repairStep > 1 && repairStep < 4) {
+                html += '<button class="btn btn-secondary" onclick="repairStep--;renderRepairFlow()">← 上一步</button>';
+            }
+            html += '<button class="btn btn-primary" id="repairNextBtn" onclick="repairNextStep()">' + (repairStep === 3 ? '✓ 确认提交' : '下一步 →') + '</button>';
+            html += '</div></div>';
+            return html;
+        }
+
+        function repairNextStep() {
+            if (repairStep === 1) {
+                var name = document.getElementById('repairEntName').value.trim();
+                var code = document.getElementById('repairEntCode').value.trim();
+                var type = document.getElementById('repairType').value;
+                var contact = document.getElementById('repairContact').value.trim();
+                var phone = document.getElementById('repairPhone').value.trim();
+                var reason = document.getElementById('repairReason').value.trim();
+
+                clearRepairErrors();
+                var valid = true;
+                if (!name) { showRepairError('repairEntName', '请输入企业名称'); valid = false; }
+                if (!code || code.length !== 18) { showRepairError('repairEntCode', '请输入18位统一社会信用代码'); valid = false; }
+                if (!type) { showRepairError('repairType', '请选择修复类型'); valid = false; }
+                if (!contact) { showRepairError('repairContact', '请输入联系人'); valid = false; }
+                if (!phone || !/^1\d{10}$/.test(phone)) { showRepairError('repairPhone', '请输入正确的11位手机号'); valid = false; }
+                if (!reason || reason.length < 20) { showRepairError('repairReason', '请详细说明修复理由（不少于20字）'); valid = false; }
+                if (!valid) return;
+            }
+            if (repairStep === 2 && repairFiles.length === 0) {
+                alert('请至少上传一份证明材料');
+                return;
+            }
+            if (repairStep === 3) {
+                repairHistory.unshift({
+                    id: 'XF' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + String(Math.floor(Math.random() * 900 + 100)),
+                    enterprise: document.getElementById('repairEntName').value,
+                    type: document.getElementById('repairType').value,
+                    submitTime: new Date().toISOString().slice(0, 16).replace('T', ' '),
+                    status: 'processing',
+                    result: '--'
+                });
+                repairFiles = [];
+            }
+            repairStep++;
+            renderRepairFlow();
+            if (repairStep > 3) document.getElementById('repairContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearRepairErrors() {
+            document.querySelectorAll('.repair-form-group.error').forEach(function(g) { g.classList.remove('error'); });
+        }
+
+        function showRepairError(fieldId, msg) {
+            var el = document.getElementById(fieldId);
+            if (!el) return;
+            var group = el.closest('.repair-form-group');
+            if (!group) return;
+            group.classList.add('error');
+            var errEl = group.querySelector('.error-msg');
+            if (!errEl) {
+                errEl = document.createElement('span');
+                errEl.className = 'error-msg';
+                group.appendChild(errEl);
+            }
+            errEl.textContent = msg;
+        }
+
+        function addRepairFiles(event) {
+            var files = event.target.files;
+            for (var i = 0; i < files.length; i++) {
+                repairFiles.push({ name: files[i].name, size: formatRepairSize(files[i].size) });
+            }
+            renderRepairFormArea();
+            event.target.value = '';
+        }
+
+        function removeRepairFile(idx) {
+            repairFiles.splice(idx, 1);
+            renderRepairFormArea();
+        }
+
+        function formatRepairSize(bytes) {
+            if (bytes < 1024) return bytes + 'B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + 'MB';
+        }
+
+        function renderRepairFormArea() {
+            var card = document.querySelector('.repair-form-card');
+            if (!card) return;
+            card.outerHTML = renderRepairForm();
+        }
         // ========== 表格增强系统 ==========
         var TableEnhancer = function(tableId, options) {
             options = options || {};
@@ -12403,6 +12863,12 @@
                 if (sp) {
                     sp.style.display = 'block';
                     resetSpecialReportPage();
+                }
+            } else if (sub === 'repair') {
+                const rp = document.getElementById('service-repair');
+                if (rp) {
+                    rp.style.display = 'block';
+                    renderRepairFlow();
                 }
             } else {
                 // 其他服务显示提示（原型演示）
