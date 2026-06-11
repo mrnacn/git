@@ -3175,6 +3175,234 @@
             gap: 12px;
         }
         
+
+        /* ====== AI智能客服 ====== */
+        .ai-chat-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #e11d48);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9998;
+            box-shadow: 0 4px 16px rgba(196,18,48,0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: fabPulse 2s ease-in-out infinite;
+        }
+        .ai-chat-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 24px rgba(196,18,48,0.5);
+        }
+        .ai-chat-fab.hidden { display: none; }
+        @keyframes fabPulse {
+            0%, 100% { box-shadow: 0 4px 16px rgba(196,18,48,0.35); }
+            50% { box-shadow: 0 4px 28px rgba(196,18,48,0.55); }
+        }
+        .ai-chat-fab .fab-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 2px solid white;
+        }
+
+        .ai-chat-panel {
+            display: none;
+            position: fixed;
+            bottom: 96px;
+            right: 28px;
+            width: 380px;
+            height: 560px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            z-index: 9999;
+            flex-direction: column;
+            overflow: hidden;
+            animation: chatSlideIn 0.25s ease;
+        }
+        .ai-chat-panel.show { display: flex; }
+        @keyframes chatSlideIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .ai-chat-header {
+            background: linear-gradient(135deg, var(--primary), #e11d48);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .ai-chat-header .chat-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .ai-chat-header .chat-subtitle {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+        .ai-chat-header .chat-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .ai-chat-header .chat-action-btn {
+            width: 30px; height: 30px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .ai-chat-header .chat-action-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .ai-chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f8f9fb;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 8px;
+            max-width: 85%;
+            animation: msgIn 0.2s ease;
+        }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-message.user { align-self: flex-end; flex-direction: row-reverse; }
+        .chat-message.bot { align-self: flex-start; }
+        .chat-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .chat-message.bot .chat-avatar { background: var(--primary); color: white; }
+        .chat-message.user .chat-avatar { background: var(--info); color: white; }
+        .chat-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .chat-message.bot .chat-bubble {
+            background: white;
+            color: var(--gray-700);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .chat-message.user .chat-bubble {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-typing { display: none; align-self: flex-start; }
+        .chat-typing.show { display: flex; align-items: center; gap: 8px; }
+        .chat-typing .typing-dots { display: flex; gap: 3px; padding: 8px 14px; background: white; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .chat-typing .typing-dots span {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            animation: dotBounce 1.4s infinite;
+        }
+        .chat-typing .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0.6); }
+            40% { transform: scale(1); }
+        }
+
+        .chat-quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0 0 8px;
+        }
+        .chat-quick-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 14px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .chat-quick-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #fef2f4;
+        }
+
+        .ai-chat-footer {
+            padding: 12px 14px;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            gap: 8px;
+            background: white;
+        }
+        .ai-chat-footer input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--gray-300);
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .ai-chat-footer input:focus { border-color: var(--primary); }
+        .ai-chat-footer .chat-send-btn {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+        .ai-chat-footer .chat-send-btn:hover { background: var(--primary-dark); }
+        .chat-welcome {
+            text-align: center;
+            padding: 20px;
+        }
+        .chat-welcome .welcome-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .chat-welcome p {
+            font-size: 13px;
+            color: var(--gray-500);
+            line-height: 1.8;
+        }
         .form-group { margin-bottom: 16px; }
         
         .form-label {
@@ -14535,6 +14763,160 @@
             bodyEl.innerHTML = riskInfo + legend + '<div class="batch-doc-preview">' + highlightedContent + '</div>';
             modal.style.display = 'flex';
         }
+
+        // ========== AI智能客服 ==========
+        var chatOpen = false;
+        var isTyping = false;
+        var chatHistory = [];
+
+        // 知识库
+        var KB = [
+            { q: ['查询','信用查询','查信用','怎么查','如何查询','在哪里查'], a: '您可以通过首页搜索框输入<strong>企业名称</strong>或<strong>统一社会信用代码</strong>进行信用查询。系统支持<strong>企业、个人、社会组织</strong>三种类型。也可以在「信用公示」页面按类型浏览公示信息。🔍' },
+            { q: ['信用修复','修复','恢复信用','失信修复','如何修复'], a: '信用修复流程如下：<br>1. <strong>确认条件</strong>：已履行法定义务、纠正失信行为<br>2. <strong>准备材料</strong>：修复申请书、整改证明、身份证明<br>3. <strong>在线提交</strong>：通过「信用服务 → 信用修复申请」提交<br>4. <strong>等待审核</strong>：5个工作日内完成审核<br>详细指南请查看「信用修复申请」页面。📋' },
+            { q: ['材料','需要什么','什么材料','准备什么'], a: '信用修复所需材料：<br>• <strong>信用修复申请书</strong>（加盖公章）<br>• <strong>整改证明材料</strong>（罚款凭证、整改报告等）<br>• <strong>身份证明文件</strong>（营业执照副本）<br>• <strong>授权委托书</strong>（非法人办理时需要）<br>可在修复申请页面下载标准模板。📎' },
+            { q: ['专项报告','专用报告','专项信用报告','无违法违规'], a: '专项信用报告可替代<strong>44个领域</strong>的无违法违规证明，适用于<strong>上市融资、招标投标、项目申报</strong>等场景。系统自动归集近3年数据，最快<strong>约1分钟</strong>生成PDF报告。通过「信用服务 → 专项信用报告」申请。📊' },
+            { q: ['异议','申诉','异议申诉','信息有误','记录不对'], a: '如果您发现信用报告中的信息有误，可以通过<strong>异议申诉</strong>流程进行更正：<br>1. 确认错误信息<br>2. 准备相关证明材料<br>3. 通过「信用服务 → 信用异议」提交申诉<br>4. 平台在<strong>20个工作日</strong>内反馈处理结果。📝' },
+            { q: ['信易贷','贷款','融资','借贷','资金'], a: '<strong>信易贷</strong>是基于企业信用评估的融资服务平台，联合多家金融机构为守信企业提供<strong>优惠利率贷款</strong>。已覆盖全市超过50万家企业。通过首页底部「信易贷」入口申请。💰' },
+            { q: ['评级','信用等级','AAA','评分','等级标准'], a: '企业信用评级分为<strong>AAA、AA、A、B、C</strong>五个等级：<br>• AAA：信用优良，无不良记录<br>• AA：信用良好，有轻微瑕疵<br>• A：信用一般<br>• B：存在一定失信行为<br>• C：存在严重失信行为<br>评级基于行政处罚、司法记录、履约情况等多维度综合评估。⭐' },
+            { q: ['报告','信用报告','企业报告','下载报告'], a: '企业信用报告包含：<strong>工商基本信息、行政许可、行政处罚、司法信息、荣誉资质</strong>等内容。登录后通过「信用服务 → 企业信用报告」在线申请和下载。📄' },
+            { q: ['时效','多久','时间','工作日','审核','期限'], a: '各类业务办理时效：<br>• 信用查询：<strong>即时</strong><br>• 信用报告：<strong>1-3个工作日</strong><br>• 信用修复：<strong>5个工作日</strong>审核<br>• 异议申诉：<strong>20个工作日</strong>内反馈<br>• 专项报告：最快<strong>约1分钟</strong>📅' },
+            { q: ['个人','个人信用','个人查询','自然人'], a: '个人信用服务目前支持：<br>• <strong>个人信用信息查询</strong>（需实名认证）<br>• <strong>个人信用报告</strong>申请<br>• <strong>个人异议申诉</strong><br>• <strong>信用承诺书</strong>签署<br>请通过湖北省统一认证平台登录后使用。👤' },
+            { q: ['联系方式','电话','地址','联系','咨询'], a: '<strong>信用武汉平台联系方式：</strong><br>• 主办单位：武汉市发展和改革委员会<br>• 技术支持：武汉市信息中心<br>• 服务热线：<strong>12345</strong>（市民服务热线）<br>• 官方网站：信用武汉平台<br>• 办公地址：武汉市江岸区沿江大道188号📍' },
+            { q: ['政策','法规','规定','管理办法','条例'], a: '最新的信用政策法规包括：<br>• 《社会信用体系建设法》草案<br>• 《企业信用评价管理办法（试行）》<br>• 《信用修复工作规程（2026版）》<br>• 《武汉市社会信用体系建设规划（2026-2030）》<br>请查看「政策法规」页面获取完整内容。📜' },
+            { q: ['注册','登录','认证','账号','实名'], a: '个人用户通过<strong>湖北省统一认证平台</strong>登录，企业用户需完成<strong>企业授权认证</strong>。点击页面右上角「用户中心」进行登录操作。目前支持<strong>个人用户(L2)</strong>和<strong>企业用户(L2)</strong>两种认证级别。🔐' }
+        ];
+
+        var DEFAULT_REPLY = '感谢您的咨询！我已记录您的问题，如需更详细的解答，建议：<br>1. 查看相关<strong>政策法规</strong>页面<br>2. 拨打服务热线 <strong>12345</strong><br>3. 通过「信用服务」页面提交具体业务申请<br><br>您还可以尝试问我其他信用相关问题 😊';
+
+        function findBestAnswer(question) {
+            var q = question.toLowerCase();
+            var best = null;
+            var bestScore = 0;
+            KB.forEach(function(entry) {
+                entry.q.forEach(function(keyword) {
+                    if (q.indexOf(keyword.toLowerCase()) > -1) {
+                        var score = keyword.length;
+                        if (score > bestScore) { bestScore = score; best = entry; }
+                    }
+                });
+            });
+            return best;
+        }
+
+        function toggleChatPanel() {
+            chatOpen = !chatOpen;
+            var panel = document.getElementById('aiChatPanel');
+            if (chatOpen) {
+                panel.classList.add('show');
+                document.getElementById('chatInput').focus();
+            } else {
+                panel.classList.remove('show');
+            }
+        }
+
+        function sendMessage() {
+            var input = document.getElementById('chatInput');
+            var text = input.value.trim();
+            if (!text || isTyping) return;
+            input.value = '';
+            addMessage('user', text);
+            processQuery(text);
+        }
+
+        function sendQuickQuestion(btn) {
+            if (isTyping) return;
+            var text = btn.textContent;
+            addMessage('user', text);
+            processQuery(text);
+        }
+
+        function addMessage(type, text) {
+            var body = document.getElementById('aiChatBody');
+            var welcome = body.querySelector('.chat-welcome');
+            if (welcome) welcome.style.display = 'none';
+
+            var msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message ' + type;
+            var avatar = type === 'user' ? '👤' : '🤖';
+            msgDiv.innerHTML = '<div class="chat-avatar">' + avatar + '</div><div class="chat-bubble">' + text + '</div>';
+            body.insertBefore(msgDiv, document.getElementById('chatTyping'));
+            body.scrollTop = body.scrollHeight;
+            chatHistory.push({ type: type, text: text, time: new Date() });
+        }
+
+        function processQuery(text) {
+            isTyping = true;
+            var typingEl = document.getElementById('chatTyping');
+            typingEl.classList.add('show');
+            document.getElementById('aiChatBody').scrollTop = document.getElementById('aiChatBody').scrollHeight;
+
+            var delay = 600 + Math.random() * 800;
+            setTimeout(function() {
+                typingEl.classList.remove('show');
+                var match = findBestAnswer(text);
+                var reply = match ? match.a : DEFAULT_REPLY;
+                addMessage('bot', reply);
+                isTyping = false;
+            }, delay);
+        }
+
+        function clearChatHistory() {
+            chatHistory = [];
+            var body = document.getElementById('aiChatBody');
+            var typing = document.getElementById('chatTyping');
+            body.innerHTML = '';
+            body.appendChild(typing);
+
+            var welcome = document.createElement('div');
+            welcome.className = 'chat-welcome';
+            welcome.innerHTML = '<div class="welcome-icon">🤖</div><p>对话已清空。有什么可以帮助您的？</p>';
+            body.insertBefore(welcome, typing);
+
+            var quickDiv = document.createElement('div');
+            quickDiv.className = 'chat-quick-questions';
+            quickDiv.innerHTML = '<button class="chat-quick-btn" onclick="sendQuickQuestion(this)">如何查询企业信用？</button><button class="chat-quick-btn" onclick="sendQuickQuestion(this)">信用修复需要什么材料？</button><button class="chat-quick-btn" onclick="sendQuickQuestion(this)">什么是专项信用报告？</button><button class="chat-quick-btn" onclick="sendQuickQuestion(this)">如何进行异议申诉？</button><button class="chat-quick-btn" onclick="sendQuickQuestion(this)">信易贷如何申请？</button><button class="chat-quick-btn" onclick="sendQuickQuestion(this)">信用评级标准是什么？</button>';
+            body.insertBefore(quickDiv, typing);
+        }
     </script>
+
+    <!-- ====== AI智能客服 ====== -->
+    <div class="ai-chat-fab" id="aiChatFab" onclick="toggleChatPanel()" title="智能客服">
+        💬
+        <span class="fab-badge"></span>
+    </div>
+    <div class="ai-chat-panel" id="aiChatPanel">
+        <div class="ai-chat-header">
+            <div>
+                <div class="chat-title">🤖 信用小助手</div>
+                <div class="chat-subtitle">AI智能客服 · 7x24小时在线</div>
+            </div>
+            <div class="chat-actions">
+                <button class="chat-action-btn" onclick="clearChatHistory()" title="清空对话">🔄</button>
+                <button class="chat-action-btn" onclick="toggleChatPanel()" title="关闭">✕</button>
+            </div>
+        </div>
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="chat-welcome">
+                <div class="welcome-icon">🤖</div>
+                <p>您好！我是信用武汉智能客服<strong>信用小助手</strong>。<br>可以为您解答信用查询、报告申请、<br>信用修复、政策法规等相关问题。<br>请直接输入您的问题，或点击下方快捷问题。</p>
+            </div>
+            <div class="chat-quick-questions" id="chatQuickQuestions">
+                <button class="chat-quick-btn" onclick="sendQuickQuestion(this)">如何查询企业信用？</button>
+                <button class="chat-quick-btn" onclick="sendQuickQuestion(this)">信用修复需要什么材料？</button>
+                <button class="chat-quick-btn" onclick="sendQuickQuestion(this)">什么是专项信用报告？</button>
+                <button class="chat-quick-btn" onclick="sendQuickQuestion(this)">如何进行异议申诉？</button>
+                <button class="chat-quick-btn" onclick="sendQuickQuestion(this)">信易贷如何申请？</button>
+                <button class="chat-quick-btn" onclick="sendQuickQuestion(this)">信用评级标准是什么？</button>
+            </div>
+            <div class="chat-typing" id="chatTyping">
+                <div class="chat-avatar" style="background:var(--primary);color:white;">🤖</div>
+                <div class="typing-dots"><span></span><span></span><span></span></div>
+            </div>
+        </div>
+        <div class="ai-chat-footer">
+            <input type="text" id="chatInput" placeholder="请输入您的问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
 </body>
 </html>
