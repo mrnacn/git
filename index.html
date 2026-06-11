@@ -1797,19 +1797,203 @@
         }
         
         th, td {
-            padding: 12px 14px;
+            padding: 10px 14px;
             text-align: left;
             border-bottom: 1px solid var(--gray-100);
             font-size: 13px;
+            vertical-align: middle;
         }
-        
+
         th {
             background: var(--gray-100);
             font-weight: 600;
             color: var(--gray-700);
+            white-space: nowrap;
+            user-select: none;
+            position: relative;
         }
-        
+        th.sortable {
+            cursor: pointer;
+            padding-right: 26px;
+            transition: background 0.15s;
+        }
+        th.sortable:hover { background: var(--gray-200); }
+        th.sortable::after {
+            content: '⇅';
+            position: absolute;
+            right: 8px;
+            font-size: 11px;
+            color: var(--gray-400);
+            opacity: 0.4;
+            transition: opacity 0.15s;
+        }
+        th.sortable:hover::after { opacity: 1; }
+        th.sortable.asc::after { content: '↑'; opacity: 1; color: var(--primary); }
+        th.sortable.desc::after { content: '↓'; opacity: 1; color: var(--primary); }
+
+        /* 表格可选行 */
+        .table-row-selectable tbody tr { cursor: pointer; transition: background 0.1s; }
+        .table-row-selectable tbody tr:hover { background: #fef2f4; }
+        .table-row-selectable tbody tr.selected { background: var(--primary-light); }
+
+        /* 复选框列 */
+        th.cb-col, td.cb-col { width: 40px; text-align: center; padding: 10px 6px; }
+        td.cb-col input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); }
+
         tr:hover { background: var(--gray-50); }
+
+        /* ====== 表格工具栏 ====== */
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .table-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .table-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .table-toolbar .selected-count {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .table-toolbar .toolbar-btn {
+            padding: 6px 14px;
+            border: 1px solid var(--gray-300);
+            border-radius: 5px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: all 0.15s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .table-toolbar .toolbar-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #fef2f4;
+        }
+        .table-toolbar .toolbar-btn.primary-action {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .table-toolbar .toolbar-btn.primary-action:hover { background: var(--primary-dark); }
+
+        /* 密度切换 */
+        .density-btn-group {
+            display: flex;
+            border: 1px solid var(--gray-300);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .density-btn-group .density-btn {
+            padding: 5px 10px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--gray-500);
+            transition: all 0.15s;
+            border-right: 1px solid var(--gray-200);
+        }
+        .density-btn-group .density-btn:last-child { border-right: none; }
+        .density-btn-group .density-btn:hover { background: var(--gray-50); }
+        .density-btn-group .density-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 密度模式 */
+        table.density-compact th,
+        table.density-compact td { padding: 5px 10px; font-size: 12px; }
+        table.density-comfortable th,
+        table.density-comfortable td { padding: 14px 18px; font-size: 14px; }
+
+        /* 列筛选下拉 */
+        .col-filter-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .col-filter-icon {
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--gray-400);
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: all 0.15s;
+        }
+        .col-filter-icon:hover { color: var(--primary); background: var(--gray-200); }
+        .col-filter-icon.active { color: var(--primary); background: var(--primary-light); }
+
+        .col-filter-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 180px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 100;
+            padding: 8px;
+            margin-top: 2px;
+        }
+        .col-filter-dropdown.show { display: block; animation: fadeIn 0.15s ease; }
+        .col-filter-search {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--gray-200);
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 6px;
+            outline: none;
+        }
+        .col-filter-search:focus { border-color: var(--primary); }
+        .col-filter-list { max-height: 200px; overflow-y: auto; }
+        .col-filter-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .col-filter-option:hover { background: var(--gray-50); }
+        .col-filter-option input[type="checkbox"] { accent-color: var(--primary); }
+        .col-filter-actions {
+            display: flex;
+            gap: 6px;
+            padding-top: 6px;
+            border-top: 1px solid var(--gray-100);
+            margin-top: 4px;
+        }
+        .col-filter-actions button {
+            flex: 1;
+            padding: 4px 8px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            background: white;
+        }
+        .col-filter-actions button.primary { background: var(--primary); color: white; border-color: var(--primary); }
         
         .badge {
             display: inline-block;
@@ -10698,6 +10882,425 @@
                 }
             });
         }
+
+        // ========== 表格增强系统 ==========
+        var TableEnhancer = function(tableId, options) {
+            options = options || {};
+            var table = document.getElementById(tableId);
+            if (!table) return;
+            var sortableCols = options.sortableCols || [];
+            var filterableCols = options.filterableCols || [];
+            var selectable = options.selectable !== false;
+            var exportable = options.exportable !== false;
+            var densityControl = options.densityControl !== false;
+            var currentSort = { col: -1, dir: 'asc' };
+            var selectedRows = new Set();
+            var colFilters = {};
+            var originalData = [];
+
+            function init() {
+                cacheOriginalData();
+                renderToolbar();
+                setupSortHeaders();
+                setupCheckboxes();
+                setupColFilters();
+                if (densityControl) setupDensityButtons();
+                if (options.onReady) options.onReady(table);
+            }
+
+            function cacheOriginalData() {
+                originalData = [];
+                var rows = table.querySelectorAll('tbody tr');
+                rows.forEach(function(row, i) {
+                    var cells = row.querySelectorAll('td');
+                    var rowData = [];
+                    cells.forEach(function(cell) {
+                        rowData.push({ text: cell.textContent.trim(), html: cell.innerHTML });
+                    });
+                    originalData.push({ row: row, cells: rowData, index: i });
+                });
+            }
+
+            function setupSortHeaders() {
+                var headers = table.querySelectorAll('thead th');
+                headers.forEach(function(th, colIdx) {
+                    if (sortableCols.indexOf(colIdx) > -1) {
+                        th.classList.add('sortable');
+                        th.addEventListener('click', function() {
+                            if (currentSort.col === colIdx) {
+                                currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+                            } else {
+                                currentSort.col = colIdx;
+                                currentSort.dir = 'asc';
+                            }
+                            updateSortUI();
+                            applySort();
+                        });
+                    }
+                });
+            }
+
+            function updateSortUI() {
+                table.querySelectorAll('thead th').forEach(function(th, i) {
+                    th.classList.remove('asc', 'desc');
+                    if (i === currentSort.col) th.classList.add(currentSort.dir);
+                });
+            }
+
+            function applySort() {
+                var tbody = table.querySelector('tbody');
+                var rows = Array.from(originalData);
+                if (currentSort.col >= 0) {
+                    rows.sort(function(a, b) {
+                        var va = a.cells[currentSort.col] ? a.cells[currentSort.col].text : '';
+                        var vb = b.cells[currentSort.col] ? b.cells[currentSort.col].text : '';
+                        var na = parseFloat(va.replace(/[^0-9.-]/g, ''));
+                        var nb = parseFloat(vb.replace(/[^0-9.-]/g, ''));
+                        if (!isNaN(na) && !isNaN(nb)) {
+                            return currentSort.dir === 'asc' ? na - nb : nb - na;
+                        }
+                        return currentSort.dir === 'asc' ? va.localeCompare(vb, 'zh-CN') : vb.localeCompare(va, 'zh-CN');
+                    });
+                }
+                var fragment = document.createDocumentFragment();
+                rows.forEach(function(d) { fragment.appendChild(d.row.cloneNode(true)); });
+                tbody.innerHTML = '';
+                tbody.appendChild(fragment);
+                refreshCheckboxes();
+            }
+
+            function setupColFilters() {
+                if (filterableCols.length === 0) return;
+                var headers = table.querySelectorAll('thead th');
+                filterableCols.forEach(function(colIdx) {
+                    if (!headers[colIdx]) return;
+                    var th = headers[colIdx];
+                    if (th.querySelector('.col-filter-icon')) return;
+                    var colValues = [];
+                    originalData.forEach(function(d) {
+                        if (d.cells[colIdx]) colValues.push(d.cells[colIdx].text);
+                    });
+                    var uniqueValues = Array.from(new Set(colValues)).filter(Boolean).sort();
+                    var wrap = document.createElement('span');
+                    wrap.className = 'col-filter-wrap';
+                    wrap.innerHTML = th.innerHTML;
+                    th.innerHTML = '';
+                    th.appendChild(wrap);
+                    wrap.appendChild(createFilterIcon(colIdx, uniqueValues));
+                });
+            }
+
+            function createFilterIcon(colIdx, values) {
+                var icon = document.createElement('span');
+                icon.className = 'col-filter-icon';
+                icon.textContent = '▽';
+                icon.title = '筛选';
+                icon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleFilterDropdown(icon, colIdx, values);
+                });
+                return icon;
+            }
+
+            function toggleFilterDropdown(icon, colIdx, values) {
+                var existing = document.querySelector('.col-filter-dropdown.show');
+                if (existing) existing.remove();
+                var dropdown = document.createElement('div');
+                dropdown.className = 'col-filter-dropdown show';
+                var search = document.createElement('input');
+                search.className = 'col-filter-search';
+                search.placeholder = '搜索筛选...';
+                var list = document.createElement('div');
+                list.className = 'col-filter-list';
+
+                function renderOptions(filterText) {
+                    list.innerHTML = '';
+                    var filtered = values.filter(function(v) {
+                        return !filterText || v.toLowerCase().indexOf(filterText.toLowerCase()) > -1;
+                    });
+                    var activeFilters = colFilters[colIdx] || [];
+                    filtered.forEach(function(v) {
+                        var opt = document.createElement('label');
+                        opt.className = 'col-filter-option';
+                        var cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.checked = activeFilters.indexOf(v) > -1;
+                        cb.addEventListener('change', function() {
+                            if (cb.checked) {
+                                if (activeFilters.indexOf(v) < 0) activeFilters.push(v);
+                            } else {
+                                var idx = activeFilters.indexOf(v);
+                                if (idx > -1) activeFilters.splice(idx, 1);
+                            }
+                            colFilters[colIdx] = activeFilters;
+                        });
+                        opt.appendChild(cb);
+                        opt.appendChild(document.createTextNode(v));
+                        list.appendChild(opt);
+                    });
+                }
+                renderOptions('');
+                search.addEventListener('input', function() { renderOptions(search.value); });
+                var actions = document.createElement('div');
+                actions.className = 'col-filter-actions';
+                var clearBtn = document.createElement('button');
+                clearBtn.textContent = '清除';
+                clearBtn.addEventListener('click', function() { delete colFilters[colIdx]; dropdown.remove(); applyAllFilters(); });
+                var okBtn = document.createElement('button');
+                okBtn.className = 'primary';
+                okBtn.textContent = '确定';
+                okBtn.addEventListener('click', function() { dropdown.remove(); applyAllFilters(); });
+                actions.appendChild(clearBtn);
+                actions.appendChild(okBtn);
+                dropdown.appendChild(search);
+                dropdown.appendChild(list);
+                dropdown.appendChild(actions);
+                icon.parentElement.parentElement.style.position = 'relative';
+                icon.parentElement.parentElement.appendChild(dropdown);
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!dropdown.contains(e.target) && e.target !== icon) {
+                        dropdown.remove();
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }
+
+            function applyAllFilters() {
+                var tbody = table.querySelector('tbody');
+                var rows = Array.from(originalData);
+                Object.keys(colFilters).forEach(function(colIdx) {
+                    var active = colFilters[colIdx];
+                    if (active && active.length > 0) {
+                        rows = rows.filter(function(d) {
+                            var cellText = d.cells[parseInt(colIdx)] ? d.cells[parseInt(colIdx)].text : '';
+                            return active.indexOf(cellText) > -1;
+                        });
+                    }
+                });
+                var fragment = document.createDocumentFragment();
+                rows.forEach(function(d) { fragment.appendChild(d.row.cloneNode(true)); });
+                tbody.innerHTML = '';
+                tbody.appendChild(fragment);
+                if (currentSort.col >= 0) applySort();
+                refreshCheckboxes();
+            }
+
+            function setupCheckboxes() {
+                if (!selectable) return;
+                table.classList.add('table-row-selectable');
+                var thead = table.querySelector('thead tr');
+                var th = document.createElement('th');
+                th.className = 'cb-col';
+                var selectAllCB = document.createElement('input');
+                selectAllCB.type = 'checkbox';
+                selectAllCB.title = '全选';
+                th.appendChild(selectAllCB);
+                thead.insertBefore(th, thead.firstChild);
+                refreshCheckboxes();
+                selectAllCB.addEventListener('change', function() {
+                    var tbody = table.querySelector('tbody');
+                    var allCBs = tbody.querySelectorAll('td.cb-col input[type="checkbox"]');
+                    allCBs.forEach(function(cb, i) {
+                        cb.checked = selectAllCB.checked;
+                        var row = cb.closest('tr');
+                        if (selectAllCB.checked) { row.classList.add('selected'); selectedRows.add(i); }
+                        else { row.classList.remove('selected'); selectedRows.delete(i); }
+                    });
+                    updateToolbarCount();
+                });
+            }
+
+            function refreshCheckboxes() {
+                if (!selectable) return;
+                var tbody = table.querySelector('tbody');
+                var rows = tbody.querySelectorAll('tr');
+                var selectAllCB = table.querySelector('thead th.cb-col input[type="checkbox"]');
+                selectedRows.clear();
+                rows.forEach(function(row, i) {
+                    var hasCB = row.querySelector('td.cb-col');
+                    if (!hasCB) {
+                        var td = document.createElement('td');
+                        td.className = 'cb-col';
+                        var cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        td.appendChild(cb);
+                        row.insertBefore(td, row.firstChild);
+                        cb.addEventListener('change', function() {
+                            if (cb.checked) { row.classList.add('selected'); selectedRows.add(i); }
+                            else { row.classList.remove('selected'); selectedRows.delete(i); }
+                            updateToolbarCount();
+                            if (selectAllCB) {
+                                var total = tbody.querySelectorAll('td.cb-col input[type="checkbox"]');
+                                selectAllCB.checked = Array.from(total).every(function(c) { return c.checked; });
+                                selectAllCB.indeterminate = !selectAllCB.checked && Array.from(total).some(function(c) { return c.checked; });
+                            }
+                        });
+                    }
+                });
+                if (selectAllCB) { selectAllCB.checked = false; selectAllCB.indeterminate = false; }
+                updateToolbarCount();
+            }
+
+            function updateToolbarCount() {
+                var countEl = document.getElementById(tableId + '-selected-count');
+                if (!countEl) return;
+                var tbody = table.querySelector('tbody');
+                var checked = tbody ? tbody.querySelectorAll('td.cb-col input[type="checkbox"]:checked').length : 0;
+                countEl.textContent = checked > 0 ? '已选 ' + checked + ' 项' : '';
+                var batchBtn = document.getElementById(tableId + '-batch-export');
+                if (batchBtn) batchBtn.style.display = checked > 0 ? '' : 'none';
+            }
+
+            function exportCSV() {
+                var rows = table.querySelectorAll('tbody tr');
+                if (rows.length === 0) { alert('无数据可导出'); return; }
+                var csv = [];
+                var headers = [];
+                table.querySelectorAll('thead th').forEach(function(th) {
+                    var text = th.textContent.trim();
+                    if (text !== '' && !th.classList.contains('cb-col')) headers.push(text);
+                });
+                csv.push(headers.join(','));
+                rows.forEach(function(row) {
+                    var cells = row.querySelectorAll('td');
+                    var rowArr = [];
+                    cells.forEach(function(cell) {
+                        if (!cell.classList.contains('cb-col')) {
+                            rowArr.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+                        }
+                    });
+                    csv.push(rowArr.join(','));
+                });
+                var blob = new Blob(['﻿' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = tableId + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function exportSelectedCSV() {
+                var data = getSelectedData();
+                if (data.length === 0) { alert('请先选择要导出的行'); return; }
+                var csv = [];
+                var headers = [];
+                table.querySelectorAll('thead th').forEach(function(th) {
+                    var text = th.textContent.trim();
+                    if (text !== '' && !th.classList.contains('cb-col')) headers.push(text);
+                });
+                csv.push(headers.join(','));
+                data.forEach(function(row) { csv.push(row.map(function(c) { return '"' + c.replace(/"/g, '""') + '"'; }).join(',')); });
+                var blob = new Blob(['﻿' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = tableId + '_selected_' + new Date().toISOString().slice(0, 10) + '.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function getSelectedData() {
+                var tbody = table.querySelector('tbody');
+                var cbs = tbody ? tbody.querySelectorAll('td.cb-col input[type="checkbox"]:checked') : [];
+                return Array.from(cbs).map(function(cb) {
+                    var row = cb.closest('tr');
+                    var cells = row.querySelectorAll('td:not(.cb-col)');
+                    return Array.from(cells).map(function(c) { return c.textContent.trim(); });
+                });
+            }
+
+            function setupDensityButtons() {
+                var btnGroup = document.getElementById(tableId + '-density-btns');
+                if (!btnGroup) return;
+                btnGroup.querySelectorAll('.density-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        btnGroup.querySelectorAll('.density-btn').forEach(function(b) { b.classList.remove('active'); });
+                        btn.classList.add('active');
+                        table.classList.remove('density-compact', 'density-comfortable');
+                        var mode = btn.dataset.density;
+                        if (mode === 'compact') table.classList.add('density-compact');
+                        else if (mode === 'comfortable') table.classList.add('density-comfortable');
+                    });
+                });
+            }
+
+            function renderToolbar() {
+                if (table.parentElement.querySelector('.table-toolbar')) return;
+                var toolbar = document.createElement('div');
+                toolbar.className = 'table-toolbar';
+                var left = document.createElement('div');
+                left.className = 'table-toolbar-left';
+                if (selectable) {
+                    var count = document.createElement('span');
+                    count.className = 'selected-count';
+                    count.id = tableId + '-selected-count';
+                    left.appendChild(count);
+                    var batchBtn = document.createElement('button');
+                    batchBtn.className = 'toolbar-btn primary-action';
+                    batchBtn.textContent = '导出选中';
+                    batchBtn.style.display = 'none';
+                    batchBtn.id = tableId + '-batch-export';
+                    batchBtn.addEventListener('click', exportSelectedCSV);
+                    left.appendChild(batchBtn);
+                }
+                var right = document.createElement('div');
+                right.className = 'table-toolbar-right';
+                if (exportable) {
+                    var exportBtn = document.createElement('button');
+                    exportBtn.className = 'toolbar-btn';
+                    exportBtn.textContent = '导出CSV';
+                    exportBtn.addEventListener('click', exportCSV);
+                    right.appendChild(exportBtn);
+                }
+                if (densityControl) {
+                    var densityGroup = document.createElement('div');
+                    densityGroup.className = 'density-btn-group';
+                    densityGroup.id = tableId + '-density-btns';
+                    ['compact', 'default', 'comfortable'].forEach(function(mode) {
+                        var btn = document.createElement('button');
+                        btn.className = 'density-btn' + (mode === 'default' ? ' active' : '');
+                        btn.dataset.density = mode;
+                        var labels = { compact: '窄', default: '中', comfortable: '宽' };
+                        btn.textContent = labels[mode];
+                        densityGroup.appendChild(btn);
+                    });
+                    right.appendChild(densityGroup);
+                }
+                toolbar.appendChild(left);
+                toolbar.appendChild(right);
+                table.parentElement.insertBefore(toolbar, table);
+            }
+
+            init();
+            return {
+                exportCSV: exportCSV,
+                exportSelectedCSV: exportSelectedCSV,
+                getSelectedData: getSelectedData,
+                refresh: function() { cacheOriginalData(); refreshCheckboxes(); }
+            };
+        };
+
+        // ========== 自动初始化公示页面表格 ==========
+        var _origNavigateTo = navigateTo;
+        navigateTo = function(page) {
+            _origNavigateTo(page);
+            if (page === 'publicity') {
+                setTimeout(function() {
+                    ['xz-license-table'].forEach(function(id) {
+                        if (document.getElementById(id)) {
+                            new TableEnhancer(id, {
+                                sortableCols: [0, 1, 3, 4],
+                                filterableCols: [3],
+                                selectable: true,
+                                exportable: true,
+                                densityControl: true
+                            });
+                        }
+                    });
+                }, 150);
+            }
+        };
         switchRole('R01');
         
         // ========== 轮播图 ==========
